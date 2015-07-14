@@ -1,8 +1,12 @@
 package com.bewtechnologies.gtone;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -59,9 +63,14 @@ public class MainActivity extends AppCompatActivity
     private TextView sel_place;
     private String place_name;
 
+    //for current location
+    double longitude;
+    double latitude;
 
 
-           /**
+
+
+    /**
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
             * to the user's sign in state as well as the Google's APIs.
             */
@@ -75,8 +84,7 @@ public class MainActivity extends AppCompatActivity
 
            private TextView mPlaceDetailsAttribution;
 
-           private static final LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
-                   new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
+           private  LatLngBounds BOUNDS ;
 
 
 
@@ -99,6 +107,43 @@ public class MainActivity extends AppCompatActivity
               getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                getSupportActionBar().setHomeButtonEnabled(true);
 
+               //User's current location
+               LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+               if(( lm.getLastKnownLocation(LocationManager.GPS_PROVIDER))!=null) {
+
+                   Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                   longitude = location.getLongitude();
+                   latitude = location.getLatitude();
+               }
+                else{
+                    final LocationListener locationListener = new LocationListener() {
+                       public void onLocationChanged(Location location) {
+                           longitude = location.getLongitude();
+                           latitude = location.getLatitude();
+                       }
+
+
+                       @Override
+                       public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                       }
+
+                       @Override
+                       public void onProviderEnabled(String provider) {
+
+                       }
+
+                       @Override
+                       public void onProviderDisabled(String provider) {
+
+                       }
+                   };
+
+                   lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+               }
+
+               BOUNDS= new LatLngBounds(
+                       new LatLng(latitude,longitude), new LatLng(latitude+1, longitude+1));
 
 
                //places
@@ -128,7 +173,7 @@ public class MainActivity extends AppCompatActivity
                // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
                // the entire world.
                mpAdapter = new PlacesAutocompleteAdapter(this, android.R.layout.simple_list_item_1,
-                       mGoogleApiClient, BOUNDS_GREATER_SYDNEY, null);
+                       mGoogleApiClient, BOUNDS, null);
                mAutocompleteView.setAdapter(mpAdapter);
 
                // Set up the 'clear text' button that clears the text in the autocomplete view
