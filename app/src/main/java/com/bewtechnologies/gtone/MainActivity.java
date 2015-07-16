@@ -1,9 +1,11 @@
 package com.bewtechnologies.gtone;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -62,10 +64,17 @@ public class MainActivity extends AppCompatActivity
     private Button goset;
     private TextView sel_place;
     private String place_name;
+    private String place_id;
 
     //for current location
     double longitude;
     double latitude;
+
+
+    //for selected location
+    LatLng co_place;
+    double slongitude;
+    double slatitude;
 
 
 
@@ -74,24 +83,36 @@ public class MainActivity extends AppCompatActivity
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
             * to the user's sign in state as well as the Google's APIs.
             */
-           protected GoogleApiClient mGoogleApiClient;
+    protected GoogleApiClient mGoogleApiClient;
 
-           private PlacesAutocompleteAdapter mpAdapter;
+    private PlacesAutocompleteAdapter mpAdapter;
 
-           private AutoCompleteTextView mAutocompleteView;
+    private AutoCompleteTextView mAutocompleteView;
 
-           private TextView mPlaceDetailsText;
+    private TextView mPlaceDetailsText;
 
-           private TextView mPlaceDetailsAttribution;
+    private TextView mPlaceDetailsAttribution;
 
-           private  LatLngBounds BOUNDS ;
-
-
+    private  LatLngBounds BOUNDS ;
 
 
+    //Database
 
-           @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    private LocationDBHelper dbHelper;
+    private SQLiteDatabase  gtone;
+
+
+    // Location updates
+
+    LocationManager mlm;
+    ShowLocationActivity locationListener;
+
+
+
+
+
+    @Override
+  protected void onCreate(Bundle savedInstanceState) {
                super.onCreate(savedInstanceState);
                setContentView(R.layout.activity_main);
                mDrawerList = (ListView) findViewById(R.id.navList);
@@ -185,6 +206,15 @@ public class MainActivity extends AppCompatActivity
                    }
                });
 
+               //Create db, before going to setting page for the first time.
+
+//               dbHelper.onCreate(gtone);
+
+
+               //dbHelper.onCreate(gtone);
+
+
+
                 //to the setting page
                goset= (Button) findViewById(R.id.go_set);
                goset.setOnClickListener(new View.OnClickListener(){
@@ -197,6 +227,13 @@ public class MainActivity extends AppCompatActivity
                        i.putExtra("place",place_name);
                        startActivity(i);
 
+                       if(place_id!=null)
+                       {
+                           InsertInDb(place_id,place_name,slatitude,slongitude);
+                       }
+
+
+
                       // sel_place = (TextView) findViewById(R.id.selection);
                       // usersetting setting = new usersetting(sel_place,place_name);
                    }
@@ -204,18 +241,47 @@ public class MainActivity extends AppCompatActivity
 
 
 
+              //checking location
+
+             mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+
+        locationListener = new ShowLocationActivity(getApplicationContext());
+
+        mlm.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                30000,
+                10,
+                locationListener);
+
+
+
+
            }
 
 
 
-      /*  mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mlm.removeUpdates(locationListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, locationListener);
+    }
+
+      /**
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+        getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
-        // Set up the drawer.
+        Set up the drawer.
         mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));*/
+        R.id.navigation_drawer,
+        (DrawerLayout) findViewById(R.id.drawer_layout));*/
 
 
 
@@ -348,6 +414,17 @@ public class MainActivity extends AppCompatActivity
             // Get the Place object from the buffer.
             final Place place = places.get(0);
              place_name = place.getName().toString();
+             place_id= place.getId();
+
+            //Getting latitude and longitude
+
+            co_place = place.getLatLng();
+            slatitude = co_place.latitude;
+            slongitude= co_place.longitude;
+            String s = slatitude+ " "+slongitude;
+
+            Log.i("My latlng : ",s);
+
 
             // Format details of the place for display and show it in a TextView.
             mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
@@ -361,6 +438,7 @@ public class MainActivity extends AppCompatActivity
             } else {
                 mPlaceDetailsAttribution.setVisibility(View.VISIBLE);
                 mPlaceDetailsAttribution.setText(Html.fromHtml(thirdPartyAttribution.toString()));
+                //InsertInDb(place_id,place_name,slatitude,slongitude);
             }
 
             Log.i(TAG, "Place details received: " + place.getName());
@@ -368,6 +446,31 @@ public class MainActivity extends AppCompatActivity
             places.release();
         }
     };
+
+    private void InsertInDb(String place_id, String place_name, double slongitude, double slatitude) {
+
+        //inserting values into db
+        dbHelper = new LocationDBHelper(getApplicationContext());
+
+        gtone = dbHelper.getWritableDatabase();
+
+        String val= place_id+" "+place_name+" "+slatitude+" "+slongitude;
+
+        Log.i("Values : ", val);
+
+        ContentValues values= new ContentValues();
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_ID,place_id);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_NAME,place_name);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LAT,slatitude);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LONG,slongitude);
+
+        long newrowid;
+
+        newrowid= gtone.insert(LocationContract.LocationEntry.TABLE_NAME, null,values);
+
+        dbHelper.close();
+
+    }
 
     private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
                                               CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
@@ -412,62 +515,68 @@ public class MainActivity extends AppCompatActivity
                     .getPlaceById(mGoogleApiClient, placeId);
             placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
 
+
             Toast.makeText(getApplicationContext(), "Clicked: " + item.description,
                     Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Called getPlaceById to get Place details for " + item.placeId);
+
+
+
         }
     };
 
 
 }
 
-   /* @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
+     /**
+        * @Override
+        * public void onNavigationDrawerItemSelected(int position) {
+             update the main content by replacing fragments
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                    .commit();
         }
-    }
 
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
+        public void onSectionAttached(int number) {
+            switch (number) {
+                case 1:
+                    mTitle = getString(R.string.title_section1);
+                    break;
+                case 2:
+                    mTitle = getString(R.string.title_section2);
+                    break;
+                case 3:
+                    mTitle = getString(R.string.title_section3);
+                    break;
+            }
         }
-        return super.onCreateOptionsMenu(menu);
-    }
+
+        public void restoreActionBar() {
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(mTitle);
+        }
+
+
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            if (!mNavigationDrawerFragment.isDrawerOpen()) {
+                // Only show items in the action bar relevant to this screen
+                // if the drawer is not showing. Otherwise, let the drawer
+                // decide what to show in the action bar.
+                getMenuInflater().inflate(R.menu.main, menu);
+                restoreActionBar();
+                return true;
+            }
+            return super.onCreateOptionsMenu(menu);
+        }*/
 
 
 
-    *//**
+
+    /**
      * A placeholder fragment containing a simple view.
      *//*
     public static class PlaceholderFragment extends Fragment {
