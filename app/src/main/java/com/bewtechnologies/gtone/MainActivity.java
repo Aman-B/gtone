@@ -1,16 +1,19 @@
 package com.bewtechnologies.gtone;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +40,8 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+
 
 
 public class MainActivity extends AppCompatActivity
@@ -76,9 +81,6 @@ public class MainActivity extends AppCompatActivity
     double slongitude;
     double slatitude;
 
-
-
-
     /**
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
             * to the user's sign in state as well as the Google's APIs.
@@ -106,6 +108,8 @@ public class MainActivity extends AppCompatActivity
 
     LocationManager mlm;
     ShowLocationActivity locationListener;
+    private PendingIntent restoreAudioState;
+    public int ringstate;
 
 
 
@@ -113,151 +117,242 @@ public class MainActivity extends AppCompatActivity
 
     @Override
   protected void onCreate(Bundle savedInstanceState) {
-               super.onCreate(savedInstanceState);
-               setContentView(R.layout.activity_main);
-               mDrawerList = (ListView) findViewById(R.id.navList);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mDrawerList = (ListView) findViewById(R.id.navList);
 
 
-               mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-               mActivityTitle = getTitle().toString();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
 
 
-               addDrawerItems();
-               setupDrawer();
+        addDrawerItems();
+        setupDrawer();
 
-              getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-               getSupportActionBar().setHomeButtonEnabled(true);
-
-               //User's current location
-               LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-               if(( lm.getLastKnownLocation(LocationManager.GPS_PROVIDER))!=null) {
-
-                   Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                   longitude = location.getLongitude();
-                   latitude = location.getLatitude();
-               }
-                else{
-                    final LocationListener locationListener = new LocationListener() {
-                       public void onLocationChanged(Location location) {
-                           longitude = location.getLongitude();
-                           latitude = location.getLatitude();
-                       }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
 
-                       @Override
-                       public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                       }
-
-                       @Override
-                       public void onProviderEnabled(String provider) {
-
-                       }
-
-                       @Override
-                       public void onProviderDisabled(String provider) {
-
-                       }
-                   };
-
-                   lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
-               }
-
-               BOUNDS= new LatLngBounds(
-                       new LatLng(latitude,longitude), new LatLng(latitude+1, longitude+1));
 
 
-               //places
+            //check match
+            usersetting cm = new usersetting();
+        locationListener =  new ShowLocationActivity(getApplicationContext());
+        AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        ringstate = adm.getRingerMode();
 
 
-               // Construct a GoogleApiClient for the {@link Places#GEO_DATA_API} using AutoManage
-               // functionality, which automatically sets up the API client to handle Activity lifecycle
-               // events. If your activity does not extend FragmentActivity, make sure to call connect()
-               // and disconnect() explicitly.
-               mGoogleApiClient = new GoogleApiClient.Builder(this)
-                       .enableAutoManage(this, 0 /* clientId */, this)
-                       .addApi(Places.GEO_DATA_API)
-                       .build();
+        Intent i = new Intent(MainActivity.this, restoreAudio.class);
+        i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
+        restoreAudioState = PendingIntent.getService(MainActivity.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+            if (cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext())) {
+
+                Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.drawable.batdroid)
+                                .addAction(R.drawable.next,"Turn of silent mode?",restoreAudioState)
+                                .setContentTitle("gtone")
+                                .setAutoCancel(true)
+                                .setContentText("Your phone is now on silent.");
+                NotificationManager mNotifyMgr =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+                Notification note = mBuilder.build();
+
+                note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
+
+
+                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                // Builds the notification and issues it.
+                mNotifyMgr.notify(0, note);
+            }
+
+
+
+
+
+
+        //checking location
+
+        mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+
+
+
+
+
+        if((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER)))
+            {
+                Toast.makeText(getApplicationContext(),"Inside mlm gps",Toast.LENGTH_SHORT).show();
+
+                mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 10, locationListener);
+
+                if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
+                {
+                    Toast.makeText(getApplicationContext(),"latitude inside gps: "+ShowLocationActivity.latitude,Toast.LENGTH_SHORT).show();
+                   // AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+
+                    Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(this)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
+                                    .setContentTitle("gtone")
+                                    .setAutoCancel(true)
+                                    .setContentText("Your phone is now on silent.");
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+
+                    Notification note = mBuilder.build();
+
+                    note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
+
+
+                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(0, note);
+
+
+
+                    Toast.makeText(getApplicationContext(),"Back from check m oncreate", Toast.LENGTH_SHORT).show();
+                }
+
+
+                mlm.removeUpdates(locationListener);
+            }
+
+
+            if((mlm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))&&(!(mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))))
+            {
+
+                Toast.makeText(getApplicationContext(),"Inside mlm net pro",Toast.LENGTH_SHORT).show();
+
+                mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 10, locationListener);
+                if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
+                {
+                    Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(this)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
+                                    .setContentTitle("gtone")
+                                    .setAutoCancel(true)
+                                    .setContentText("Your phone is now on silent.");
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                    Notification note = mBuilder.build();
+
+                            note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
+
+
+                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(0, note);
+
+
+                }
+                mlm.removeUpdates(locationListener);
+            }
+
+
+
+        BOUNDS = new LatLngBounds(
+                new LatLng(latitude - 1, longitude - 1), new LatLng(latitude + 1, longitude + 1));
+
+
+        //places
+
+
+        // Construct a GoogleApiClient for the {@link Places#GEO_DATA_API} using AutoManage
+        // functionality, which automatically sets up the API client to handle Activity lifecycle
+        // events. If your activity does not extend FragmentActivity, make sure to call connect()
+        // and disconnect() explicitly.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, 0 /* clientId */, this)
+                .addApi(Places.GEO_DATA_API)
+                .build();
 
 
 // Retrieve the AutoCompleteTextView that will display Place suggestions.
-               mAutocompleteView = (AutoCompleteTextView)
-                       findViewById(R.id.autocomplete_places);
+        mAutocompleteView = (AutoCompleteTextView)
+                findViewById(R.id.autocomplete_places);
 
-               // Register a listener that receives callbacks when a suggestion has been selected
-               mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
+        // Register a listener that receives callbacks when a suggestion has been selected
+        mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
 
-               // Retrieve the TextViews that will display details and attributions of the selected place.
-               mPlaceDetailsText = (TextView) findViewById(R.id.place_details);
-               mPlaceDetailsAttribution = (TextView) findViewById(R.id.place_attribution);
+        // Retrieve the TextViews that will display details and attributions of the selected place.
+        mPlaceDetailsText = (TextView) findViewById(R.id.place_details);
+        mPlaceDetailsAttribution = (TextView) findViewById(R.id.place_attribution);
 
-               // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
-               // the entire world.
-               mpAdapter = new PlacesAutocompleteAdapter(this, android.R.layout.simple_list_item_1,
-                       mGoogleApiClient, BOUNDS, null);
-               mAutocompleteView.setAdapter(mpAdapter);
+        // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
+        // the entire world.
+        mpAdapter = new PlacesAutocompleteAdapter(this, android.R.layout.simple_list_item_1,
+                mGoogleApiClient, BOUNDS, null);
+        mAutocompleteView.setAdapter(mpAdapter);
 
-               // Set up the 'clear text' button that clears the text in the autocomplete view
-               Button clearButton = (Button) findViewById(R.id.button_clear);
-               clearButton.setOnClickListener(new View.OnClickListener() {
-                   @Override
-                   public void onClick(View v) {
-                       mAutocompleteView.setText("");
-                   }
-               });
+        // Set up the 'clear text' button that clears the text in the autocomplete view
+        Button clearButton = (Button) findViewById(R.id.button_clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAutocompleteView.setText("");
+            }
+        });
 
-               //Create db, before going to setting page for the first time.
+        //Create db, before going to setting page for the first time.
 
 //               dbHelper.onCreate(gtone);
 
 
-               //dbHelper.onCreate(gtone);
+        //dbHelper.onCreate(gtone);
+
+
+        //to the setting page
+        goset = (Button) findViewById(R.id.go_set);
+        goset.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+                if (place_id != null) {
+                    InsertInDb(place_id, place_name, slatitude, slongitude);
+                }
+
+                Intent i = new Intent(MainActivity.this, usersetting.class);
+                i.putExtra("place", place_name);
+                startActivity(i);
 
 
 
-                //to the setting page
-               goset= (Button) findViewById(R.id.go_set);
-               goset.setOnClickListener(new View.OnClickListener(){
 
-                   @Override
-                   public void onClick(View v) {
-
-
-                       Intent i =  new Intent(MainActivity.this, usersetting.class);
-                       i.putExtra("place",place_name);
-                       startActivity(i);
-
-                       if(place_id!=null)
-                       {
-                           InsertInDb(place_id,place_name,slatitude,slongitude);
-                       }
+                // sel_place = (TextView) findViewById(R.id.selection);
+                // usersetting setting = new usersetting(sel_place,place_name);
+            }
+        });
 
 
 
-                      // sel_place = (TextView) findViewById(R.id.selection);
-                      // usersetting setting = new usersetting(sel_place,place_name);
-                   }
-               });
 
 
-
-              //checking location
-
-             mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-
-        locationListener = new ShowLocationActivity(getApplicationContext());
-
-        mlm.requestLocationUpdates(
+      /*  mlm.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 30000,
                 10,
                 locationListener);
 
+        mlm.removeUpdates(locationListener);*/
+    } /* end of OnCreate. */
 
 
-
-           }
 
 
 
@@ -270,7 +365,46 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, locationListener);
+
+        usersetting cm =new usersetting();
+        locationListener = new ShowLocationActivity(getApplicationContext());
+        mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+
+        if((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER)))
+        {
+            Toast.makeText(getApplicationContext(),"Inside mlm gps resume",Toast.LENGTH_SHORT).show();
+            mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 50, locationListener);
+            Log.i("gps resume co: ", ShowLocationActivity.latitude+" "+ShowLocationActivity.longitude);
+            if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
+            {
+                AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+
+            }
+            mlm.removeUpdates(locationListener);
+        }
+
+
+        if((mlm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))&&!((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))))
+        {
+            Toast.makeText(getApplicationContext(),"Inside mlm net pro resume",Toast.LENGTH_SHORT).show();
+
+            mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 50, locationListener);
+
+            if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
+            {
+                AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+
+            }
+
+            mlm.removeUpdates(locationListener);
+        }
+
+
     }
 
       /**
@@ -420,6 +554,7 @@ public class MainActivity extends AppCompatActivity
 
             co_place = place.getLatLng();
             slatitude = co_place.latitude;
+
             slongitude= co_place.longitude;
             String s = slatitude+ " "+slongitude;
 
@@ -439,6 +574,9 @@ public class MainActivity extends AppCompatActivity
                 mPlaceDetailsAttribution.setVisibility(View.VISIBLE);
                 mPlaceDetailsAttribution.setText(Html.fromHtml(thirdPartyAttribution.toString()));
                 //InsertInDb(place_id,place_name,slatitude,slongitude);
+                usersetting cm = new usersetting();
+                cm.checkMatch(latitude,longitude,getApplicationContext());
+
             }
 
             Log.i(TAG, "Place details received: " + place.getName());
@@ -447,7 +585,7 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private void InsertInDb(String place_id, String place_name, double slongitude, double slatitude) {
+    private void InsertInDb(String place_id, String place_name, double slatitude, double slongitude) {
 
         //inserting values into db
         dbHelper = new LocationDBHelper(getApplicationContext());

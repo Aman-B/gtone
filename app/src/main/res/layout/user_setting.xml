@@ -47,6 +47,13 @@
                 android:text="Medium Text"
                 android:id="@+id/match" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Check settings"
+                android:id="@+id/chk"
+                android:layout_weight="1.02" />
+
         </LinearLayout>
     </ScrollView>
 
