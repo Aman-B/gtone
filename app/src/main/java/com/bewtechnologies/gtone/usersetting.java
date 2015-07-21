@@ -99,7 +99,7 @@ public class usersetting extends MainActivity{
             dbHelper = new LocationDBHelper(getApplicationContext());
             gtone= dbHelper.getReadableDatabase();
 
-        Cursor c = gtone.rawQuery("Select * from locations",null);
+        Cursor c = gtone.rawQuery("Select * from location",null);
 
         int i=0;
         if(c!=null&&c.getCount()>0)
@@ -110,7 +110,7 @@ public class usersetting extends MainActivity{
 
 
                  s =s+" " + c.getString(0)+" "+ c.getColumnName(1) + " " +
-                         c.getString(1) +" " + c.getString(2)+ " "+c.getColumnName(3) +" "+ c.getString(3)+ " " + c.getString(4)+"\n";
+                         c.getString(1) +" " + c.getString(2)+ " "+c.getColumnName(3) +" "+ c.getString(3)+ " " + c.getString(4)+ " "+c.getString(5)+ "\n";
 
 
 
@@ -169,33 +169,34 @@ public class usersetting extends MainActivity{
         dbHelper = new LocationDBHelper(context);
         gtone= dbHelper.getReadableDatabase();
 
-        Cursor c= gtone.rawQuery("Select lat, long from locations",null);
-        c.moveToFirst();
-
-        int i=0;
-        if(c!=null && c.getCount()>0)
-        {
-            do{
-                dblat= c.getDouble(0);
-                dblong=c.getDouble(1);
-
-               Log.i("Inside check match recevied coordinates -->","Here: "+latitude+longitude);
-
-               Log.i("Inside check match db coordinates -->","Here: "+dblat+dblong);
-
-                double dist= measure(latitude,longitude,dblat,dblong);
-                Log.i("Value of dist--->","here : "+dist);
-               if(dist<100)
-               {
-                   Log.i("Inside if -->","Yes we are.");
-                   IsNear=true;
-                    break;
-               }
-
-              }while(c.moveToNext());
 
 
-         }
+
+            Cursor c = gtone.rawQuery("Select lat, long from location", null);
+            c.moveToFirst();
+
+            int i = 0;
+            if (c != null && c.getCount() > 0) {
+                do {
+                    dblat = c.getDouble(0);
+                    dblong = c.getDouble(1);
+
+                    Log.i("Inside check match recevied coordinates -->", "Here: " + latitude + longitude);
+
+                    Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
+
+                    double dist = measure(latitude, longitude, dblat, dblong);
+                    Log.i("Value of dist--->", "here : " + dist);
+                    if (dist < 100) {
+                        Log.i("Inside if -->", "Yes we are.");
+                        IsNear = true;
+                        break;
+                    }
+
+                } while (c.moveToNext());
+
+
+
 
            /* if(IsNear==true)
             {
@@ -205,6 +206,8 @@ public class usersetting extends MainActivity{
                 Toast.makeText(context,"The settings are a go!",Toast.LENGTH_SHORT).show();
             }
 */
+
+        }
         Log.i("Exiting checkmatch-->"," yes we are.");
         return IsNear;
 

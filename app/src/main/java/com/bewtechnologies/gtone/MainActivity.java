@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity
     //for setting
     private Button goset;
     private TextView sel_place;
-    private String place_name;
-    private String place_id;
+    static public String place_name;
+    static public String place_id;
 
     //for current location
     double longitude;
@@ -78,8 +78,11 @@ public class MainActivity extends AppCompatActivity
 
     //for selected location
     LatLng co_place;
-    double slongitude;
-    double slatitude;
+   static double slongitude;
+   static double slatitude;
+
+    //checking sound
+    Button set;
 
     /**
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
@@ -147,13 +150,14 @@ public class MainActivity extends AppCompatActivity
         restoreAudioState = PendingIntent.getService(MainActivity.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
-            if (cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext())) {
 
-                Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+            if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext())) {
+
+                Toast.makeText(getApplicationContext(), "Inside onCreate", Toast.LENGTH_SHORT).show();
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.batdroid)
-                                .addAction(R.drawable.next,"Turn of silent mode?",restoreAudioState)
+                                .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
                                 .setContentTitle("gtone")
                                 .setAutoCancel(true)
                                 .setContentText("Your phone is now on silent.");
@@ -163,7 +167,7 @@ public class MainActivity extends AppCompatActivity
 
                 Notification note = mBuilder.build();
 
-                note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
+                note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
 
 
                 adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
@@ -317,29 +321,30 @@ public class MainActivity extends AppCompatActivity
 
         //to the setting page
         goset = (Button) findViewById(R.id.go_set);
+
+
+
+
+
         goset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this,usersetting.class);
+                startActivity(i);
+                sel_place = (TextView) findViewById(R.id.selection);
+            }
+        });
+        //checking sound
+        set=(Button) findViewById(R.id.set);
+        set.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
-
-
-                if (place_id != null) {
-                    InsertInDb(place_id, place_name, slatitude, slongitude);
-                }
-
-                Intent i = new Intent(MainActivity.this, usersetting.class);
-                i.putExtra("place", place_name);
-                startActivity(i);
-
-
-
-
-                // sel_place = (TextView) findViewById(R.id.selection);
-                // usersetting setting = new usersetting(sel_place,place_name);
+                Intent set = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(set);
             }
+
         });
-
-
 
 
 
@@ -585,14 +590,14 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private void InsertInDb(String place_id, String place_name, double slatitude, double slongitude) {
+    public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE) {
 
         //inserting values into db
         dbHelper = new LocationDBHelper(getApplicationContext());
 
         gtone = dbHelper.getWritableDatabase();
 
-        String val= place_id+" "+place_name+" "+slatitude+" "+slongitude;
+        String val= place_id+" "+place_name+" "+slatitude+" "+slongitude+" "+ RINGER_MODE;
 
         Log.i("Values : ", val);
 
@@ -601,6 +606,7 @@ public class MainActivity extends AppCompatActivity
         values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_NAME,place_name);
         values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LAT,slatitude);
         values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LONG,slongitude);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_SETTING,RINGER_MODE);
 
         long newrowid;
 

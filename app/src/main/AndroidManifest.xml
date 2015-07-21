@@ -59,9 +59,12 @@
 
            </activity>
 
+        <activity android:name=".SettingsActivity"
+            android:label="gtone">
 
+        </activity>
 
-<service android:name=".restoreAudio"></service>
+        <service android:name=".restoreAudio"></service>
 
     </application>
 
