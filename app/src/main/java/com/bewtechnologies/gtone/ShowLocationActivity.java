@@ -55,7 +55,7 @@ public class ShowLocationActivity implements LocationListener {
         // Initialize the location fields
         if (location != null) {
             System.out.println("Provider " + provider + " has been selected.");
-            Toast.makeText(context,"Location  available"+location.getLatitude(),Toast.LENGTH_SHORT).show();
+           // Toast.makeText(context,"Location  available"+location.getLatitude(),Toast.LENGTH_SHORT).show();
 
             //keeping current location
             latitude=location.getLatitude();

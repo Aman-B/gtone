@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
@@ -45,6 +44,9 @@ public class usersetting extends MainActivity{
     //for phone-mode
     AudioManager adm;
 
+    //coordinates in db
+    static double dblatitude;
+    static double dblongitude;
 
 
     @Override
@@ -158,7 +160,7 @@ public class usersetting extends MainActivity{
 
        boolean IsNear=false;
 
-        Toast.makeText(context,"Inside check match",Toast.LENGTH_SHORT).show();
+       // Toast.makeText(context,"Inside check match",Toast.LENGTH_SHORT).show();
 
 
        double dblat;
@@ -189,6 +191,8 @@ public class usersetting extends MainActivity{
                     Log.i("Value of dist--->", "here : " + dist);
                     if (dist < 100) {
                         Log.i("Inside if -->", "Yes we are.");
+                        dblatitude=dblat;
+                        dblongitude=dblong;
                         IsNear = true;
                         break;
                     }
@@ -213,6 +217,46 @@ public class usersetting extends MainActivity{
 
 
     }
+
+
+    //the other checkmatch to not bother user once he cancelled the notification at a place.
+
+    public boolean checkMatch(double elat,double elong,double latitude, double longitude) {
+
+        boolean IsNear=false;
+
+
+
+
+        double dist= measure(elat,elong,latitude,longitude);
+
+        Log.i("Inside checkmatch 2-->"," coord="+"elat :"+ elat+" elong"+ elong+" alatitude"+ latitude+" alongitude"+longitude);
+
+        Log.i("Inside checkmatch 2-->"," yes we are.");
+        Log.i("Value of dist---> 2 ", "here : " + dist);
+
+        if(dist<100)
+        {
+            IsNear=true;
+            return  IsNear;
+        }
+
+
+            return IsNear;
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
 
 
     public double measure(double lat1, double lon1, double lat2, double lon2){  // generally used geo measurement function

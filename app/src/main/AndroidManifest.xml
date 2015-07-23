@@ -65,6 +65,7 @@
         </activity>
 
         <service android:name=".restoreAudio"></service>
+        <receiver android:name=".AlarmReceiver"></receiver>
 
     </application>
 

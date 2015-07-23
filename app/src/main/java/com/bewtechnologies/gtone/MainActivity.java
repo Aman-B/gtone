@@ -1,5 +1,6 @@
 package com.bewtechnologies.gtone;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.media.AudioManager;
@@ -84,6 +86,10 @@ public class MainActivity extends AppCompatActivity
     //checking sound
     Button set;
 
+//keeping place
+static double  mlat=0;
+   static double mlong=0;
+
     /**
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
             * to the user's sign in state as well as the Google's APIs.
@@ -115,7 +121,8 @@ public class MainActivity extends AppCompatActivity
     public int ringstate;
 
 
-
+    //tracker
+    PendingIntent pendingIntent;
 
 
     @Override
@@ -136,9 +143,16 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setHomeButtonEnabled(true);
 
 
+        //tracker
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
 
 
-            //check match
+        /*locationListener =  new ShowLocationActivity(getApplicationContext());
+        mlat=ShowLocationActivity.latitude;
+        mlong=ShowLocationActivity.longitude;*/
+
+          /*  //check match
             usersetting cm = new usersetting();
         locationListener =  new ShowLocationActivity(getApplicationContext());
         AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -153,12 +167,12 @@ public class MainActivity extends AppCompatActivity
 
             if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext())) {
 
-                Toast.makeText(getApplicationContext(), "Inside onCreate", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Inside onCreate", Toast.LENGTH_SHORT).show();
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.batdroid)
                                 .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
-                                .setContentTitle("gtone")
+                                .setContentTitle("oncreate")
                                 .setAutoCancel(true)
                                 .setContentText("Your phone is now on silent.");
                 NotificationManager mNotifyMgr =
@@ -169,8 +183,25 @@ public class MainActivity extends AppCompatActivity
 
                 note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
 
+                int savedRingerMode = getSavedRingerMode(usersetting.dblatitude,usersetting.dblongitude);
 
-                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                if(savedRingerMode==0)
+                {
+                    Log.i("Inside main silent mode 1:", "yes");
+                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                }
+                else if(savedRingerMode==1)
+                {
+                    Log.i("Inside main vibrate mode 1:", "yes");
+                    adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                }
+                else
+                {
+                    Log.i("Inside main normal  mode 1:", "yes");
+                    adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                }
+
+
                 // Builds the notification and issues it.
                 mNotifyMgr.notify(0, note);
             }
@@ -191,22 +222,22 @@ public class MainActivity extends AppCompatActivity
 
         if((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER)))
             {
-                Toast.makeText(getApplicationContext(),"Inside mlm gps",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),"Inside mlm gps",Toast.LENGTH_SHORT).show();
 
                 mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 10, locationListener);
 
                 if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
                 {
-                    Toast.makeText(getApplicationContext(),"latitude inside gps: "+ShowLocationActivity.latitude,Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(),"latitude inside gps: "+ShowLocationActivity.latitude,Toast.LENGTH_SHORT).show();
                    // AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                     adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 
-                    Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(this)
                                     .setSmallIcon(R.drawable.batdroid)
                                     .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
-                                    .setContentTitle("gtone")
+                                    .setContentTitle("checking location gps")
                                     .setAutoCancel(true)
                                     .setContentText("Your phone is now on silent.");
                     NotificationManager mNotifyMgr =
@@ -219,13 +250,31 @@ public class MainActivity extends AppCompatActivity
                     note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
 
 
-                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+
+
+                    int savedRingerMode = getSavedRingerMode(usersetting.dblatitude,usersetting.dblongitude);
+
+                    if(savedRingerMode==0)
+                    {
+                        Log.i("Inside main silent mode 2:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
+                    else if(savedRingerMode==1)
+                    {
+                        Log.i("Inside main vibrate mode 2:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    }
+                    else
+                    {
+                        Log.i("Inside main normal mode 2:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
                     // Builds the notification and issues it.
                     mNotifyMgr.notify(0, note);
 
 
 
-                    Toast.makeText(getApplicationContext(),"Back from check m oncreate", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(),"Back from check m oncreate", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -236,17 +285,17 @@ public class MainActivity extends AppCompatActivity
             if((mlm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))&&(!(mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))))
             {
 
-                Toast.makeText(getApplicationContext(),"Inside mlm net pro",Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getApplicationContext(),"Inside mlm net pro",Toast.LENGTH_SHORT).show();
 
                 mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 10, locationListener);
                 if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
                 {
-                    Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(),"Inside onCreate",Toast.LENGTH_SHORT).show();
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(this)
                                     .setSmallIcon(R.drawable.batdroid)
                                     .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
-                                    .setContentTitle("gtone")
+                                    .setContentTitle("checking loc net prov")
                                     .setAutoCancel(true)
                                     .setContentText("Your phone is now on silent.");
                     NotificationManager mNotifyMgr =
@@ -257,14 +306,32 @@ public class MainActivity extends AppCompatActivity
                             note.flags|=note.DEFAULT_LIGHTS|note.FLAG_AUTO_CANCEL;
 
 
-                    adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    int savedRingerMode = getSavedRingerMode(usersetting.dblatitude,usersetting.dblongitude);
+                    Log.i("savedringermmode: ", ""+savedRingerMode);
+
+                    if(savedRingerMode==0)
+                    {
+                        Log.i("Inside main silent mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
+                    else if(savedRingerMode==1)
+                    {
+                        Log.i("Inside main vibrate mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    }
+                    else
+                    {
+                        Log.i("Inside main normal mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
+
                     // Builds the notification and issues it.
                     mNotifyMgr.notify(0, note);
 
 
                 }
-                mlm.removeUpdates(locationListener);
-            }
+                mlm.removeUpdates(locationListener); }*/
+
 
 
 
@@ -357,8 +424,66 @@ public class MainActivity extends AppCompatActivity
         mlm.removeUpdates(locationListener);*/
     } /* end of OnCreate. */
 
+    public  int getSavedRingerMode(double latitude, double longitude,Context context) {
+
+        String ringermode="RINGER_MODE_NORMAL";
 
 
+        //Getting data from db
+        dbHelper = new LocationDBHelper(context);
+        gtone= dbHelper.getReadableDatabase();
+
+
+        Cursor c1= gtone.rawQuery("Select lat,long,setting from location ", null);
+
+        if(c1!=null&&c1.getCount()>0)
+
+        {
+            c1.moveToFirst();
+            do {
+
+                Log.i("Here's info : ","Here lat : "+ c1.getString(0)+" got lat : "+latitude+" long : "+ c1.getString(1)+" got long : "+longitude+"and ringermode : "+ c1.getString(2)) ;
+
+            }while(c1.moveToNext());
+
+        }
+
+
+
+        Cursor c = gtone.rawQuery("Select setting from location where lat ="+latitude +" and long ="+longitude, null);
+
+
+       if(c!=null && c.getCount()>0)
+       {
+
+           c.moveToFirst();
+           do{
+           ringermode = c.getString(0);
+            Log.i("Found saved ringer mode? Here's is c: " + c.getString(0), "Here is ringermode: " + ringermode);
+             }while(c.moveToNext());
+
+           if (ringermode.equals("Silent mode")) {
+               Log.i("Inside silent mode :", "yes");
+               return 0;
+           } else if (ringermode.equals("Vibrate mode")) {
+               Log.i("Inside vibrate mode :", "yes");
+               return 1;
+           }
+           else
+           {
+               Log.i("Inside normal1 :", "yes");
+               return 2;
+           }
+       }
+
+       else
+       {      Log.i("Ringer mode saved? ", "This one : "+ringermode);
+               return 2;
+       }
+
+
+
+    }
 
 
     @Override
@@ -371,45 +496,152 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+
+
+
         usersetting cm =new usersetting();
         locationListener = new ShowLocationActivity(getApplicationContext());
         mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
-        if((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER)))
+
+
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval = 10000;
+
+        AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        ringstate = adm.getRingerMode();
+
+        Log.i("Resume restoreringstate gps : ", "Here ->"+ringstate);
+
+        Intent i = new Intent(MainActivity.this, restoreAudio.class);
+
+        i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
+        restoreAudioState = PendingIntent.getService(MainActivity.this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        
+        if(!(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,mlat,mlong)))
         {
-            Toast.makeText(getApplicationContext(),"Inside mlm gps resume",Toast.LENGTH_SHORT).show();
-            mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 50, locationListener);
-            Log.i("gps resume co: ", ShowLocationActivity.latitude+" "+ShowLocationActivity.longitude);
-            if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
-            {
-                AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+            boolean res =cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,mlat,mlong);
 
+            if ((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))) {
+                //Toast.makeText(getApplicationContext(),"Inside mlm gps resume",Toast.LENGTH_SHORT).show();
+
+
+
+
+
+                mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 50, locationListener);
+                Log.i("gps resume co: ", ShowLocationActivity.latitude + " " + ShowLocationActivity.longitude);
+                if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext())) {
+                    //marking loc
+                    mlat = ShowLocationActivity.latitude;
+                    mlong = ShowLocationActivity.longitude;
+
+                    Log.i("coord : ","resume: "+mlat+mlong);
+
+                    //notification
+
+
+
+
+
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(this)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
+                                    .setContentTitle("gps pro on resume")
+                                    .setAutoCancel(true)
+                                    .setContentText("Your phone is now on silent.");
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+                    Notification note = mBuilder.build();
+
+                    note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+
+                    int savedRingerMode = getSavedRingerMode(usersetting.dblatitude, usersetting.dblongitude,getApplicationContext());
+                    Log.i("savedringermmode: ", "" + savedRingerMode);
+
+                    if (savedRingerMode == 0) {
+                        adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    } else if (savedRingerMode == 1) {
+                        adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    } else {
+                        adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
+                    //Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+                    mNotifyMgr.notify(0, note);
+
+                }
+
+                mlm.removeUpdates(locationListener);
             }
-            mlm.removeUpdates(locationListener);
-        }
 
 
-        if((mlm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))&&!((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))))
-        {
-            Toast.makeText(getApplicationContext(),"Inside mlm net pro resume",Toast.LENGTH_SHORT).show();
-
-            mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 50, locationListener);
-
-            if(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,getApplicationContext()))
+            if ((mlm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) && !((mlm.isProviderEnabled(LocationManager.GPS_PROVIDER))))
             {
-                AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(),"Inside mlm net pro resume",Toast.LENGTH_SHORT).show();
 
+                Log.i("Inside onresume  coordinates -->", "Here: " + ShowLocationActivity.latitude+ShowLocationActivity.longitude + mlat+mlong);
+
+                Log.i("Main activity = Here's result : ", "IsNear? "+res);
+
+                mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 50, locationListener);
+
+                if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext()))
+                {
+
+                    //notification
+
+
+
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(this)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
+                                    .setContentTitle("net pro onresume")
+                                    .setAutoCancel(true)
+                                    .setContentText("Your phone is now on silent.");
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+
+                    Notification note = mBuilder.build();
+
+                    note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+                    int savedRingerMode = getSavedRingerMode(ShowLocationActivity.latitude, ShowLocationActivity.longitude,getApplicationContext());
+                    Log.i("savedringermmode: ", "" + savedRingerMode);
+
+                    if (savedRingerMode == 0) {
+                        Log.i("Inside main silent mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    } else if (savedRingerMode == 1) {
+                        Log.i("Inside main vibrate mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    } else {
+                        Log.i("Inside main normal mode 3:", "yes");
+                        adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
+                    // Toast.makeText(getApplicationContext(),"Back from check m resume", Toast.LENGTH_SHORT).show();
+                    mNotifyMgr.notify(0, note);
+
+                }
+
+                mlm.removeUpdates(locationListener);
             }
 
-            mlm.removeUpdates(locationListener);
         }
-
-
+        else{
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        }
     }
 
       /**
@@ -429,7 +661,7 @@ public class MainActivity extends AppCompatActivity
 
     private void addDrawerItems()
     {
-               String[] osArray = { "About us" };
+               String[] osArray = { "About us","Saved places" };
                mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
                mDrawerList.setAdapter(mAdapter);
 
@@ -440,6 +672,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
+                if(position==1){
+                    Intent i = new Intent(MainActivity.this,usersetting.class);
+                    startActivity(i);
+
+                }
             }
         });
 
