@@ -20,8 +20,8 @@ import android.util.Log;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
-    public double elat; // returns latitude
-    public double elong;
+    public static double  elat; // returns latitude
+    public static double elong;
     ShowLocationActivity locationListener;
     private PendingIntent restoreAudioState;
     public int ringstate;
@@ -33,88 +33,135 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+
+
         TrackerService gps = new TrackerService(context);
-        if(gps.canGetLocation()) {
+        if(gps.canGetLocation())
+        {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
 
             usersetting cm = new usersetting();
 
+
+
             locationListener = new ShowLocationActivity(context);
             AudioManager adm = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             ringstate = adm.getRingerMode();
 
-
-            //use checkmatch.
-
             Intent i = new Intent(context.getApplicationContext(), restoreAudio.class);
             i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
             restoreAudioState = PendingIntent.getService(context.getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            Log.i("elat and elong : ","alarm: "+elat+elong);
-            Log.i("coord : ","alarm: "+MainActivity.mlat+MainActivity.mlong);
-            Log.i("Outside alarm -->", "Here: " + alarmlat+alarmlong);
-            alarmlat=elat;
-            alarmlong=elong;
 
-                    do
+
+
+
+
+
+            if(MainActivity.Notified==false) {
+                if (cm.checkMatch(elat, elong, context)) {
+                    MainActivity.Notified = true;
+                    MainActivity.flat=elat;
+                    MainActivity.flong=elong;
+                    Log.i("Notified? ", " Let me do: " + MainActivity.Notified);
+
+                    //Define sound URI
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+                    //notification
+
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(context)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .addAction(R.drawable.next, "Undo?", restoreAudioState)
+                                    .setContentTitle("alarmreceive")
+
+                                    .setAutoCancel(true);
+
+
+
+
+                    MainActivity ma = new MainActivity();
+                    int savedRingerMode = ma.getSavedRingerMode(usersetting.dblatitude, usersetting.dblongitude, context);
+
+                    if (savedRingerMode == 0) {
+                        //Log.i("Inside main silent mode 1:", "yes");
+                      //  adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        mBuilder.setContentTitle("Your phone is now silent.");
+                    } else if (savedRingerMode == 1) {
+                        // Log.i("Inside main vibrate mode 1:", "yes");
+                       // adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                        mBuilder.setContentTitle("Your phone is now on vibrate mode.");
+                    } else {
+                        // Log.i("Inside main normal  mode 1:", "yes");
+                       // adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                        mBuilder.setContentTitle("Your phone is now on normal mode.");
+                    }
+
+
+
+
+
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                    Notification note = mBuilder.build();
+
+                    note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(0, note);
+
+                    try {
+                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                        Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                        r.play();
+
+                        Thread.sleep(1000);
+                        r.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    finally
                     {
-                        boolean res = cm.checkMatch(elat,elong,alarmlat,alarmlong);
-                      Log.i("Inside onresume  coordinates -->", "Here: " + MainActivity.mlat+MainActivity.mlat + elat+elong);
+                        if (savedRingerMode == 0) {
+                            //Log.i("Inside main silent mode 1:", "yes");
+                            adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 
-                         Log.i("Alarm recevier = Here's result : ", "IsNear? "+res);
-                        if (cm.checkMatch(elat, elong, context)) {
-
-
-                            Log.i("Inside alarm -->", "Here: " + alarmlat+alarmlong);
-
-                            NotificationCompat.Builder mBuilder =
-                                new NotificationCompat.Builder(context)
-                                            .setSmallIcon(R.drawable.batdroid)
-                                            .addAction(R.drawable.next, "Turn of silent mode?", restoreAudioState)
-                                            .setContentTitle("alarmreceive")
-                                            .setAutoCancel(true)
-                                            .setContentText("Your phone is now on silent.");
-                            NotificationManager mNotifyMgr =
-                                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-                            Notification note = mBuilder.build();
-
-                            note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
-
-                            MainActivity ma = new MainActivity();
-                            int savedRingerMode = ma.getSavedRingerMode(usersetting.dblatitude, usersetting.dblongitude, context);
-
-                            if (savedRingerMode == 0) {
-                                Log.i("Inside main silent mode 1:", "yes");
-                                adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                            } else if (savedRingerMode == 1) {
-                                Log.i("Inside main vibrate mode 1:", "yes");
-                                adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-                            } else {
-                                Log.i("Inside main normal  mode 1:", "yes");
-                                adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                            }
-
-
-                            // Builds the notification and issues it.
-                            mNotifyMgr.notify(0, note);
-
-                            try {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                                r.play();
-
-                                Thread.sleep(1000);
-                                r.stop();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        } else if (savedRingerMode == 1) {
+                            // Log.i("Inside main vibrate mode 1:", "yes");
+                            adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                            //        mBuilder.setContentTitle("Your phone is now on vibrate mode.");
+                        } else {
+                            // Log.i("Inside main normal  mode 1:", "yes");
+                            adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                            //  mBuilder.setContentTitle("Your phone is now on normal mode.");
                         }
 
-                    }while(!(cm.checkMatch(elat,elong,alarmlat,alarmlong)));
+                    }
+
+                }
+            }
+
+            else{
+                if(!(cm.checkMatch(elat,elong,MainActivity.flat,MainActivity.flong)))
+                {
+                    MainActivity.Notified=false;
+
+
+                }
+            }
 
 
         }
+        Log.i("Notified? ", " Out; " + MainActivity.Notified);
+
+
+
     }
+
+
 }

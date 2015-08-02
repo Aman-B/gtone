@@ -28,6 +28,7 @@ public class LocationDBHelper extends SQLiteOpenHelper{
 
     public LocationDBHelper(Context context){
         super(context,DATABASE_NAME,null,DATABSE_VERSION);
+
     }
 
     @Override

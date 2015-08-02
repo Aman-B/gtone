@@ -6,10 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -47,6 +48,8 @@ public class usersetting extends MainActivity{
     //coordinates in db
     static double dblatitude;
     static double dblongitude;
+    private ListView mDrawerList;
+    private  String mActivityT;
 
 
     @Override
@@ -93,6 +96,7 @@ public class usersetting extends MainActivity{
            selected_place = (TextView) findViewById(R.id.selection);
             gotdata = (TextView) findViewById(R.id.gotdata);
            delDb = (Button) findViewById(R.id.clear_db);
+
        }
 
             selected_place.setText("Place name : " + place_name);
@@ -101,56 +105,88 @@ public class usersetting extends MainActivity{
             dbHelper = new LocationDBHelper(getApplicationContext());
             gtone= dbHelper.getReadableDatabase();
 
-        Cursor c = gtone.rawQuery("Select * from location",null);
+        mDrawerList = (ListView) findViewById(R.id.navList);
 
-        int i=0;
-        if(c!=null&&c.getCount()>0)
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mActivityT = getTitle().toString();
+
+
+        addDrawerItems();
+        setupDrawer();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+
+
+        if(!(gtone.isDbLockedByCurrentThread()))
         {
-            c.moveToFirst();
-            do {
+
+            Cursor c = gtone.rawQuery("Select * from location", null);
+
+            try
+            {
 
 
-                 s =s+" " + c.getString(0)+" "+ c.getColumnName(1) + " " +
-                         c.getString(1) +" " + c.getString(2)+ " "+c.getColumnName(3) +" "+ c.getString(3)+ " " + c.getString(4)+ " "+c.getString(5)+ "\n";
+                int i = 0;
+                if (c != null && c.getCount() > 0)
+
+                {
+                    c.moveToFirst();
+                    do {
 
 
+                        s = s + " " + c.getString(0) + " " + c.getColumnName(1) + " " +
+                                c.getString(1) + " " + c.getString(2) + " " + c.getColumnName(3) + " " + c.getString(3) + " " + c.getString(4) + " " + c.getString(5) + "\n";
 
 
-            }while (c.moveToNext());
-            Log.i("My string :", s);
+                    } while (c.moveToNext());
+                    // Log.i("My string :", s);
+                }
+
+                gotdata.setText("Got data : " + s);
+
+
+                delDb.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        gtone = dbHelper.getWritableDatabase();
+                        gtone.delete(LocationContract.LocationEntry.TABLE_NAME, null, null);
+                    }
+                });
+
+
+                /**
+                 * Button which will be used to check all settings possible -- The Ultimo.
+                 */
+
+                chkset = (Button) findViewById(R.id.chk);
+                chkset.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        /** //Silent phone
+                         *AudioManager adm= (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                         *adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                         */
+                    }
+                });
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                if((c!=null)&&(gtone!=null))
+                {
+                    gtone.close();
+                    c.close();
+                }
+            }
         }
-
-        gotdata.setText("Got data : " + s);
-
-
-        delDb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gtone= dbHelper.getWritableDatabase();
-                gtone.delete(LocationContract.LocationEntry.TABLE_NAME,null,null);
-            }
-        });
-
-
-        /**
-         * Button which will be used to check all settings possible -- The Ultimo.
-         */
-
-        chkset=(Button) findViewById(R.id.chk);
-        chkset.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-
-                /** //Silent phone
-                 *AudioManager adm= (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                 *adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                */
-            }
-        });
-
-        dbHelper.close();
 
 
     }
@@ -169,38 +205,54 @@ public class usersetting extends MainActivity{
 
         //Getting data from db
         dbHelper = new LocationDBHelper(context);
-        gtone= dbHelper.getReadableDatabase();
+
+            gtone = dbHelper.getReadableDatabase();
+         if(!(gtone.isDbLockedByCurrentThread()))
+         {
+
+          Cursor c = gtone.rawQuery("Select lat, long from location", null);
+          c.moveToFirst();
+          try {
 
 
 
+              int i = 0;
+              if (c != null && c.getCount() > 0)
+              {
+                  do {
+                      dblat = c.getDouble(0);
+                      dblong = c.getDouble(1);
 
-            Cursor c = gtone.rawQuery("Select lat, long from location", null);
-            c.moveToFirst();
+                      // Log.i("Inside check match recevied coordinates -->", "Here: " + latitude + longitude);
 
-            int i = 0;
-            if (c != null && c.getCount() > 0) {
-                do {
-                    dblat = c.getDouble(0);
-                    dblong = c.getDouble(1);
+                      //Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
 
-                    Log.i("Inside check match recevied coordinates -->", "Here: " + latitude + longitude);
+                      double dist = measure(latitude, longitude, dblat, dblong);
+                      //Log.i("Value of dist--->", "here : " + dist);
+                      if (dist < 100) {
+                          //Log.i("Inside if -->", "Yes we are.");
+                          dblatitude = dblat;
+                          dblongitude = dblong;
+                          IsNear = true;
+                          break;
+                      }
 
-                    Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
+                  } while (c.moveToNext());
 
-                    double dist = measure(latitude, longitude, dblat, dblong);
-                    Log.i("Value of dist--->", "here : " + dist);
-                    if (dist < 100) {
-                        Log.i("Inside if -->", "Yes we are.");
-                        dblatitude=dblat;
-                        dblongitude=dblong;
-                        IsNear = true;
-                        break;
-                    }
-
-                } while (c.moveToNext());
-
-
-
+              }
+          }
+          catch(Exception e)
+          {
+            e.printStackTrace();
+          }
+             finally{
+              if(gtone!=null)
+              {
+                  gtone.close();
+                  c.close();
+              }
+          }
+        }
 
            /* if(IsNear==true)
             {
@@ -211,10 +263,9 @@ public class usersetting extends MainActivity{
             }
 */
 
-        }
-        Log.i("Exiting checkmatch-->"," yes we are.");
+      //  Log.i("Exiting checkmatch-->"," yes we are.");
+        dbHelper.close();
         return IsNear;
-
 
     }
 
@@ -230,10 +281,10 @@ public class usersetting extends MainActivity{
 
         double dist= measure(elat,elong,latitude,longitude);
 
-        Log.i("Inside checkmatch 2-->"," coord="+"elat :"+ elat+" elong"+ elong+" alatitude"+ latitude+" alongitude"+longitude);
+     //   Log.i("Inside checkmatch 2-->"," coord="+"elat :"+ elat+" elong"+ elong+" alatitude"+ latitude+" alongitude"+longitude);
 
-        Log.i("Inside checkmatch 2-->"," yes we are.");
-        Log.i("Value of dist---> 2 ", "here : " + dist);
+      //  Log.i("Inside checkmatch 2-->"," yes we are.");
+      //  Log.i("Value of dist---> 2 ", "here : " + dist);
 
         if(dist<100)
         {

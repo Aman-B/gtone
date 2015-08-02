@@ -1,8 +1,6 @@
 package com.bewtechnologies.gtone;
 
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,10 +10,8 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -87,8 +83,8 @@ public class MainActivity extends AppCompatActivity
     Button set;
 
 //keeping place
-static double  mlat=0;
-   static double mlong=0;
+static double  mlat;
+   static double mlong;
 
     /**
             * GoogleApiClient wraps our service connection to Google Play Services and provides access
@@ -124,6 +120,11 @@ static double  mlat=0;
     //tracker
     PendingIntent pendingIntent;
 
+    //notify once
+    public static boolean Notified =false;
+    public static double flat;
+    public static double flong;
+
 
     @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -143,9 +144,32 @@ static double  mlat=0;
         getSupportActionBar().setHomeButtonEnabled(true);
 
 
+
+
+
+        //location (current)
+        locationListener = new ShowLocationActivity(getApplicationContext());
+        mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        mlat=ShowLocationActivity.latitude;
+        mlong=ShowLocationActivity.longitude;
+
+
+        //launching service
+
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval =1000*1;
+
         //tracker
+        Log.i("here's to tracker service : ", "cheers!");
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        alarmIntent.putExtra("resume.lat",mlat);
+        alarmIntent.putExtra("resume.long",mlong);
+
         pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
 
 
         /*locationListener =  new ShowLocationActivity(getApplicationContext());
@@ -497,7 +521,23 @@ static double  mlat=0;
         super.onResume();
 
 
+      /*  AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval =1000*60;
+*/
+        /*//tracker
+        Log.i("here's to tracker service : ", "cheers!");
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        alarmIntent.putExtra("resume.lat",mlat);
+        alarmIntent.putExtra("resume.long",mlong);
 
+        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+*/
+
+
+/*
 
         usersetting cm =new usersetting();
         locationListener = new ShowLocationActivity(getApplicationContext());
@@ -507,7 +547,7 @@ static double  mlat=0;
 
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval = 10000;
+        int interval =1000*60;
 
         AudioManager adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         ringstate = adm.getRingerMode();
@@ -519,9 +559,9 @@ static double  mlat=0;
         i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
         restoreAudioState = PendingIntent.getService(MainActivity.this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
+        Log.i("Show location :", " "+ShowLocationActivity.latitude+" "+ShowLocationActivity.longitude);
         
-        if(!(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,mlat,mlong)))
+        do
         {
             boolean res =cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,mlat,mlong);
 
@@ -532,7 +572,7 @@ static double  mlat=0;
 
 
 
-                mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 50, locationListener);
+                mlm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
                 Log.i("gps resume co: ", ShowLocationActivity.latitude + " " + ShowLocationActivity.longitude);
                 if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext())) {
                     //marking loc
@@ -587,11 +627,11 @@ static double  mlat=0;
             {
                 // Toast.makeText(getApplicationContext(),"Inside mlm net pro resume",Toast.LENGTH_SHORT).show();
 
-                Log.i("Inside onresume  coordinates -->", "Here: " + ShowLocationActivity.latitude+ShowLocationActivity.longitude + mlat+mlong);
+               // Log.i("Inside onresume  coordinates -->", "Here: " + ShowLocationActivity.latitude+ShowLocationActivity.longitude + mlat+mlong);
 
-                Log.i("Main activity = Here's result : ", "IsNear? "+res);
+                //Log.i("Main activity = Here's result : ", "IsNear? "+res);
 
-                mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 50, locationListener);
+                mlm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
 
                 if (cm.checkMatch(ShowLocationActivity.latitude, ShowLocationActivity.longitude, getApplicationContext()))
                 {
@@ -638,10 +678,23 @@ static double  mlat=0;
                 mlm.removeUpdates(locationListener);
             }
 
-        }
-        else{
+            MainActivity.Notified=true;
+            Log.i("Inside onresume : ", " Notif: "+MainActivity.Notified);
+            //tracker
+            Log.i("here's to tracker service : ", "cheers!");
+           Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+            alarmIntent.putExtra("resume.lat",mlat);
+            alarmIntent.putExtra("resume.long",mlong);
+
+            pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+
             manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-        }
+
+        }while(!(cm.checkMatch(ShowLocationActivity.latitude,ShowLocationActivity.longitude,mlat,mlong)));*/
+
+
+
     }
 
       /**
@@ -659,7 +712,7 @@ static double  mlat=0;
 
    //to set items on list:
 
-    private void addDrawerItems()
+    public void addDrawerItems()
     {
                String[] osArray = { "About us","Saved places" };
                mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
@@ -683,7 +736,7 @@ static double  mlat=0;
 
     }
 
-    private void setupDrawer(){
+    public void setupDrawer(){
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
@@ -849,6 +902,7 @@ static double  mlat=0;
 
         newrowid= gtone.insert(LocationContract.LocationEntry.TABLE_NAME, null,values);
 
+        gtone.close();
         dbHelper.close();
 
     }

@@ -16,6 +16,9 @@ public class restoreAudio extends Service {
 
     AudioManager adm;
 
+    public static double marklat;
+    public static double marklong;
+
 
     @Override
     public void onCreate() {
@@ -26,6 +29,10 @@ public class restoreAudio extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        marklat=AlarmReceiver.elat;
+        marklong=AlarmReceiver.elong;
+        Log.i("mark latlng :"," "+marklat+" "+marklong);
 
         handleCommand(intent);
 
@@ -41,7 +48,7 @@ public class restoreAudio extends Service {
     private void handleCommand(Intent intent) {
 
 
-        Log.i("Inside restore Audio?", "oh,Yes we are");
+      //  Log.i("Inside restore Audio?", "oh,Yes we are");
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         adm = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -56,7 +63,7 @@ public class restoreAudio extends Service {
             if (mode == AudioManager.RINGER_MODE_NORMAL)
 
             {
-                Log.i("Inside ringer mode normal?", "oh,Yes we are");
+                //Log.i("Inside ringer mode normal?", "oh,Yes we are");
                 adm.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                 //nm.cancel(0);
 
@@ -64,13 +71,13 @@ public class restoreAudio extends Service {
 
             else if (mode == AudioManager.RINGER_MODE_VIBRATE)
             {
-                Log.i("Inside ringer mode vibrate?", "oh,Yes we are");
+                //Log.i("Inside ringer mode vibrate?", "oh,Yes we are");
                 adm.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
                 //nm.cancel(0);
             }
             else
             {
-                Log.i("Inside silent ringer mode?", "oh,Yes we are");
+                //Log.i("Inside silent ringer mode?", "oh,Yes we are");
                 adm.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                 //nm.cancel(0);
             }

@@ -1,7 +1,6 @@
 package com.bewtechnologies.gtone;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -50,10 +49,10 @@ public class SettingsActivity extends MainActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
 
                 int selection = rg.getCheckedRadioButtonId();
-                Log.i("Got rb id ?", "Here:" + selection);
+                //Log.i("Got rb id ?", "Here:" + selection);
 
                 rb=(RadioButton) findViewById(selection);
-                Log.i("Got rb ?", "Here:" + rb);
+                //Log.i("Got rb ?", "Here:" + rb);
                 RINGER_MODE = rb.getText().toString();
 
 
