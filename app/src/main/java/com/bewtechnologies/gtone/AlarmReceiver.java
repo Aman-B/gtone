@@ -39,7 +39,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //shared
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        
+
 
         SharedPreferences.Editor editor =pref.edit();
         TrackerService gps = new TrackerService(context);

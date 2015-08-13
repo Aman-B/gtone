@@ -61,12 +61,6 @@ public class usersetting extends AppCompatActivity{
        /* ScrollView sv = (ScrollView)findViewById(R.id.scroll);
         sv.removeAllViews();*/
 
-
-
-
-
-
-
         adm= (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         Intent intent = getIntent();
         if(intent.getStringExtra("place")!=null) {
