@@ -46,21 +46,24 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
        <activity android:name=".usersetting"
-           android:label="gtone">
+           android:label="gtone"
+           android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
            </activity>
 
         <activity android:name=".SettingsActivity"
-            android:label="gtone">
+            android:label="gtone"
+            android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
         </activity>
 

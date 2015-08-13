@@ -6,19 +6,20 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 
 /**
  * Created by MAHE on 7/14/2015.
  */
-public class usersetting extends MainActivity{
+public class usersetting extends AppCompatActivity{
 
     public TextView selected_place;
     private String place_name;
@@ -52,11 +53,19 @@ public class usersetting extends MainActivity{
     private  String mActivityT;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ScrollView sv = (ScrollView)findViewById(R.id.scroll);
-        sv.removeAllViews();
+       /* ScrollView sv = (ScrollView)findViewById(R.id.scroll);
+        sv.removeAllViews();*/
+
+
+
+
+
+
 
         adm= (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         Intent intent = getIntent();
@@ -87,17 +96,19 @@ public class usersetting extends MainActivity{
 
 //        setContentView(R.layout.user_setting);
        // LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+/*
         usrst=(LinearLayout)findViewById(R.id.user_setting);
        if (usrst==null) {
 
-           View contentView = getLayoutInflater().inflate(R.layout.user_setting, null, false);
-           mDrawerLayout.addView(contentView);
+           View contentView = getLayoutInflater().inflate(R.layout.user_setting, null, false);*/
+      /*     mDrawerLayout.addView(contentView);*/
+
+            setContentView(R.layout.user_setting);
            selected_place = (TextView) findViewById(R.id.selection);
             gotdata = (TextView) findViewById(R.id.gotdata);
            delDb = (Button) findViewById(R.id.clear_db);
 
-       }
+      //}
 
             selected_place.setText("Place name : " + place_name);
 
@@ -105,15 +116,15 @@ public class usersetting extends MainActivity{
             dbHelper = new LocationDBHelper(getApplicationContext());
             gtone= dbHelper.getReadableDatabase();
 
-        mDrawerList = (ListView) findViewById(R.id.navList);
+      //  mDrawerList = (ListView) findViewById(R.id.navList);
 
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+       // mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mActivityT = getTitle().toString();
 
 
-        addDrawerItems();
-        setupDrawer();
+        //addDrawerItems();
+        //setupDrawer();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -191,8 +202,19 @@ public class usersetting extends MainActivity{
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+            return super.onOptionsItemSelected(item);
+
+    }
 
     public boolean checkMatch(double latitude, double longitude,Context context) {
+
+
+
 
        boolean IsNear=false;
 
@@ -228,8 +250,8 @@ public class usersetting extends MainActivity{
                       //Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
 
                       double dist = measure(latitude, longitude, dblat, dblong);
-                      //Log.i("Value of dist--->", "here : " + dist);
-                      if (dist < 100) {
+                      Log.i("Value of dist--->", "here : " + dist);
+                      if (dist < 600) {
                           //Log.i("Inside if -->", "Yes we are.");
                           dblatitude = dblat;
                           dblongitude = dblong;
@@ -276,9 +298,6 @@ public class usersetting extends MainActivity{
 
         boolean IsNear=false;
 
-
-
-
         double dist= measure(elat,elong,latitude,longitude);
 
      //   Log.i("Inside checkmatch 2-->"," coord="+"elat :"+ elat+" elong"+ elong+" alatitude"+ latitude+" alongitude"+longitude);
@@ -294,12 +313,6 @@ public class usersetting extends MainActivity{
 
 
             return IsNear;
-
-
-
-
-
-
 
     }
 
@@ -321,6 +334,7 @@ public class usersetting extends MainActivity{
         double d = R * c;
         return d * 1000; // meters
     }
+
 
 
 

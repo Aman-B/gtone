@@ -2,7 +2,6 @@ package com.bewtechnologies.gtone;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -124,6 +123,7 @@ static double  mlat;
     public static boolean Notified =false;
     public static double flat;
     public static double flong;
+    public static double timeline;
 
 
     @Override
@@ -147,6 +147,7 @@ static double  mlat;
 
 
 
+
         //location (current)
         locationListener = new ShowLocationActivity(getApplicationContext());
         mlm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -158,7 +159,7 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*1;
+        int interval =1000*60*2;
 
         //tracker
         Log.i("here's to tracker service : ", "cheers!");
@@ -357,10 +358,17 @@ static double  mlat;
                 mlm.removeUpdates(locationListener); }*/
 
 
+        timeline = System.currentTimeMillis();
 
+
+
+
+        //bound the search
+        latitude = ShowLocationActivity.latitude;
+        longitude= ShowLocationActivity.longitude;
 
         BOUNDS = new LatLngBounds(
-                new LatLng(latitude - 1, longitude - 1), new LatLng(latitude + 1, longitude + 1));
+                new LatLng(latitude - 0.5, longitude - 0.5), new LatLng(latitude + 0.5, longitude + 0.5));
 
 
         //places
@@ -432,7 +440,15 @@ static double  mlat;
             @Override
             public void onClick(View v) {
                 Intent set = new Intent(MainActivity.this,SettingsActivity.class);
+
+                //putting values for using in settings activity
+                set.putExtra("com.bewtechnologies.gtone.place_name", place_name);
+                set.putExtra("com.bewtechnologies.gtone.place_id",place_id);
+                set.putExtra("com.bewtechnologies.gtone.slatitude",slatitude);
+                set.putExtra("com.bewtechnologies.gtone.slongitude",slongitude);
+
                 startActivity(set);
+
             }
 
         });
@@ -796,6 +812,8 @@ static double  mlat;
 
 
 
+
+
                return super.onOptionsItemSelected(item);
            }
 
@@ -853,7 +871,7 @@ static double  mlat;
             slongitude= co_place.longitude;
             String s = slatitude+ " "+slongitude;
 
-            Log.i("My latlng : ",s);
+           // Log.i("My latlng : ",s);
 
 
             // Format details of the place for display and show it in a TextView.
@@ -880,7 +898,7 @@ static double  mlat;
         }
     };
 
-    public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE) {
+  /*  public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE) {
 
         //inserting values into db
         dbHelper = new LocationDBHelper(getApplicationContext());
@@ -906,7 +924,7 @@ static double  mlat;
         dbHelper.close();
 
     }
-
+*/
     private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
                                               CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
         Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,

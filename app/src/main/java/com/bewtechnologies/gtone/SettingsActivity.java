@@ -1,6 +1,11 @@
 package com.bewtechnologies.gtone;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -8,13 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
+import android.widget.Toast;
 
 /**
  * Created by Aman  on 7/21/2015.
  */
 
-public class SettingsActivity extends MainActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     LinearLayout setpage;
     ArrayAdapter<String> setadapter;
@@ -24,22 +29,55 @@ public class SettingsActivity extends MainActivity {
     RadioGroup rg;
     public static String RINGER_MODE=null;
 
-    @Override
+    //Database
+
+    private LocationDBHelper dbHelper;
+    private SQLiteDatabase gtone;
+
+    //string
+     public String place_name;
+     public String place_id;
+
+     double slongitude;
+     double slatitude;
+
+
+
+
     protected void onCreate(Bundle savedInstanceState)
     {
 
 
         super.onCreate(savedInstanceState);
-        ScrollView sv = (ScrollView) findViewById(R.id.scroll);
+
+
+        Intent test= getIntent();
+        place_id= test.getStringExtra("com.bewtechnologies.gtone.place_id");
+        place_name=test.getStringExtra("com.bewtechnologies.gtone.place_name");
+        slatitude= test.getDoubleExtra("com.bewtechnologies.gtone.slatitude",0);
+        slongitude=test.getDoubleExtra("com.bewtechnologies.gtone.slongitude",0);
+
+
+
+       /* ScrollView sv = (ScrollView) findViewById(R.id.scroll);
         sv.removeAllViews();
 
+        DrawerLayout dv= new DrawerLayout(this);
+        dv.setVisibility(dv.GONE);*/
 
-         setpage = (LinearLayout) findViewById(R.id.settings_page);
+        // setpage = (LinearLayout) findViewById(R.id.settings_page);
 
-        if(setpage==null) {
-            View contentView = getLayoutInflater().inflate(R.layout.settings_page, null, false);
-            mDrawerLayout.addView(contentView);
-        }
+       /* if(setpage==null) {*/
+          //  View contentView = getLayoutInflater().inflate(R.layout.settings_page, null, false);
+            //mDrawerLayout.addView(contentView);
+        //}
+
+        setContentView(R.layout.settings_page);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+
         rg=(RadioGroup) findViewById(R.id.rbg);
         save = (Button) findViewById(R.id.savesetting);
 
@@ -54,9 +92,6 @@ public class SettingsActivity extends MainActivity {
                 rb=(RadioButton) findViewById(selection);
                 //Log.i("Got rb ?", "Here:" + rb);
                 RINGER_MODE = rb.getText().toString();
-
-
-
 
             }
         });
@@ -74,8 +109,10 @@ public class SettingsActivity extends MainActivity {
 
                 if (place_id != null && SettingsActivity.RINGER_MODE != null)
                 {
-                    InsertInDb(place_id, place_name, slatitude, slongitude,RINGER_MODE);
+                    InsertInDb(place_id, place_name, slatitude, slongitude, RINGER_MODE);
+                    Toast.makeText(getApplicationContext(), "Settings saved", Toast.LENGTH_SHORT).show();
                 }
+
 
 
             }
@@ -96,12 +133,38 @@ public class SettingsActivity extends MainActivity {
 
 
 
-
-
-
-
     }
 
 
+
+
+    //insert in DB
+
+    public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE) {
+
+        //inserting values into db
+        dbHelper = new LocationDBHelper(getApplicationContext());
+
+        gtone = dbHelper.getWritableDatabase();
+
+        String val= place_id+" "+place_name+" "+slatitude+" "+slongitude+" "+ RINGER_MODE;
+
+        Log.i("Values : ", val);
+
+        ContentValues values= new ContentValues();
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_ID,place_id);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_NAME,place_name);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LAT,slatitude);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_PLACE_LONG,slongitude);
+        values.put(LocationContract.LocationEntry.COLUMN_NAME_SETTING,RINGER_MODE);
+
+        long newrowid;
+
+        newrowid= gtone.insert(LocationContract.LocationEntry.TABLE_NAME, null,values);
+
+        gtone.close();
+        dbHelper.close();
+
+    }
 
 }

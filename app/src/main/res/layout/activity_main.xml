@@ -131,7 +131,7 @@
                     android:layout_width="135dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="180dp"
-                    android:text="New Button"
+                    android:text="Set ringer mode"
                     android:id="@+id/set" />
 
                 <TextView
