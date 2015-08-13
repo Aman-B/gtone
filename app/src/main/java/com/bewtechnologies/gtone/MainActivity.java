@@ -162,7 +162,7 @@ static double  mlat;
         int interval =1000*60*20;
 
         //tracker
-        Log.i("here's to tracker service : ", "cheers!");
+       // Log.i("here's to tracker service : ", "cheers!");
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         alarmIntent.putExtra("resume.lat",mlat);
         alarmIntent.putExtra("resume.long",mlong);
@@ -742,7 +742,7 @@ static double  mlat;
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
                 if(position==1){
-                    Intent i = new Intent(MainActivity.this,usersetting.class);
+                    Intent i = new Intent(MainActivity.this,SavedPlaces.class);
                     startActivity(i);
 
                 }

@@ -61,6 +61,12 @@
 
            </activity>
 
+        <activity android:name=".SavedPlaces"
+            android:label="gtone"
+            android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
+
+        </activity>
+
         <activity android:name=".SettingsActivity"
             android:label="gtone"
             android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
