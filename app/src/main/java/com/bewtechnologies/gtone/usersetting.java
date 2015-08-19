@@ -32,7 +32,10 @@ public class usersetting extends AppCompatActivity{
     private LocationDBHelper dbHelper;
     private String s;
 
-
+    //temp db
+    private SQLiteDatabase mydatabase;
+    public static double tlat;
+    public static double tlong;
 
     //for checking settings
     Button chkset;
@@ -330,6 +333,44 @@ public class usersetting extends AppCompatActivity{
     }
 
 
+    public double givecoord(Context context) {
+
+       mydatabase = context.openOrCreateDatabase("coord",0,null);
+       mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
+       Cursor cursor = mydatabase.rawQuery("Select * from coordi",null);
+
+        if(cursor!=null && cursor.getCount()>0)
+        {
+
+            cursor.moveToFirst();
+
+            do {
+                tlat = cursor.getDouble(0);
+                tlong =cursor.getDouble(1);
+            }while(cursor.moveToNext());
+
+            return  1;
+         }
+
+        mydatabase.close();
+        return 0;
+    }
 
 
+    public void savecoord(Context context,double lat,double longi) {
+
+        mydatabase = context.openOrCreateDatabase("coord",0,null);
+        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
+        mydatabase.execSQL("INSERT INTO coordi VALUES(" + lat + "," + longi + ");");
+        mydatabase.close();
+    }
+
+    public void removetemp(Context context, double tlat, double tlong) {
+
+        mydatabase = context.openOrCreateDatabase("coord",0,null);
+        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
+        mydatabase.delete("coordi", "Latitude" + "='"+tlat+"'", null);
+        mydatabase.close();
+
+    }
 }

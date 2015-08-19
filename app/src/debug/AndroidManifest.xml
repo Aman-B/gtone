@@ -30,7 +30,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
 
 
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -54,11 +54,11 @@
             </intent-filter>
         </activity>
 
-       <activity android:name=".usersetting"
-           android:label="gtone"
-           android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
+        <activity android:name=".usersetting"
+            android:label="gtone"
+            android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
-           </activity>
+        </activity>
 
         <activity android:name=".SavedPlaces"
             android:label="gtone"

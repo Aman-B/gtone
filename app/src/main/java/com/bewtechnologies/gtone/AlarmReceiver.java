@@ -6,12 +6,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -37,11 +35,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //shared
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 
-
-        SharedPreferences.Editor editor =pref.edit();
         TrackerService gps = new TrackerService(context);
         if(gps.canGetLocation())
         {
@@ -61,51 +55,40 @@ public class AlarmReceiver extends BroadcastReceiver {
             Intent i = new Intent(context.getApplicationContext(), restoreAudio.class);
             i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
             restoreAudioState = PendingIntent.getService(context.getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            double dbl =Double.longBitsToDouble(pref.getLong("Latitude", 0));
 
+            Log.i("Notifiedo? "," " + MainActivity.Notified);
 
-            Log.i("Sharedpref ", "yes sir: "+dbl);
             Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,context));
 
-           // if((MainActivity.Notified==false)) {
-                if (cm.checkMatch(elat, elong, context))
-                {Log.i("inside checkmatch? ", "yes!");
+            if((MainActivity.Notified==false)) {
+                if (cm.checkMatch(elat, elong, context)) {
+                    Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
-                    if( (Double.longBitsToDouble(pref.getLong("Latitude", 0)))!=0)
-                    {
-                            double checkl= Double.longBitsToDouble(pref.getLong("Latitude", 0));
-                            double checklg= Double.longBitsToDouble(pref.getLong("Longitude", 0));
+                    if ((cm.givecoord(context)) != 0) {
 
-                        if(!(cm.checkMatch(elat,elong,checkl,checklg)))
-                        {           Log.i("inside correct location? ", "yes!");
-                                    notifyuser(context);
-                                    MainActivity.Notified=true;
-                            Log.i("Notified? ", " Let me do: " + MainActivity.Notified);
+
+                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong))) {
+                           // Log.i("inside correct location? ", "yes!");
+                            notifyuser(context);
+                            MainActivity.Notified = true;
+                            Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                         }
-                    }
-                    else
-                    {   Log.i("inside correct location? ", "yes!");
+                    } else {
+                        //Log.i("inside correct location? ", "yes!");
                         notifyuser(context);
-                        MainActivity.Notified=true;
-                        Log.i("Notified? ", " Let me do: " + MainActivity.Notified);
+                        MainActivity.Notified = true;
+                        Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                     }
                 }
-            //}
+                //}
 
-                else
-                {
-                    if((Double.longBitsToDouble(pref.getLong("Latitude", 0)))!=0)
-                    {
+                else {
+                    if ((cm.givecoord(context)) != 0) {
 
 
-                        double lat = Double.longBitsToDouble(pref.getLong("Latitude", 0));
-                        double lon = Double.longBitsToDouble(pref.getLong("Longitude", 0));
+                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong))) {
 
-                        if (!(cm.checkMatch(elat, elong, lat, lon)))
-                        {
-
-                            if(MainActivity.Notified==true)
-                            {
+                            if (MainActivity.Notified == true) {
 
                                 //notification for restored state
 
@@ -141,19 +124,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                                 // Builds the notification and issues it.
                                 mNotifyMgr.notify(0, note);
-
-                                editor.remove("Latitude");
-                                editor.remove("Longitude");
-                                editor.apply();
-                                editor.commit();
-                                MainActivity.Notified=false;
+                                cm.removetemp(context,usersetting.tlat,usersetting.tlong);
+                                MainActivity.Notified = false;
                             }
                         }
                     }
 
                 }
 
-
+            }
         }
         Log.i("Notified? ", " Out; " + MainActivity.Notified);
 
@@ -161,9 +140,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     public void notifyuser(Context context) {
-        Log.i("inside notify user? ", "yes!");
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor =pref.edit();
+        //Log.i("inside notify user? ", "yes!");
 
         AudioManager adm = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         ringstate = adm.getRingerMode();
@@ -177,17 +154,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         MainActivity.flong=elong;*/
 
         //marking
-        editor.putLong("Latitude", Double.doubleToLongBits(elat));
-        editor.putLong("Longitude", Double.doubleToLongBits(elong));
-
-        double checkl= Double.longBitsToDouble(pref.getLong("Latitude", 0));
-        Log.i("Sharedprefr ", "yes sir: "+checkl);
-
-
-
-        editor.apply();
-        editor.commit();
-
+        usersetting cm = new usersetting();
+        cm.savecoord(context,elat,elong);
 
 
 
