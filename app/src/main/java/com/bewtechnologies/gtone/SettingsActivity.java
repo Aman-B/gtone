@@ -1,6 +1,7 @@
 package com.bewtechnologies.gtone;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -109,7 +110,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if (place_id != null && SettingsActivity.RINGER_MODE != null)
                 {
-                    InsertInDb(place_id, place_name, slatitude, slongitude, RINGER_MODE);
+                    InsertInDb(place_id, place_name, slatitude, slongitude, RINGER_MODE,getApplicationContext());
                     Toast.makeText(getApplicationContext(), "Settings saved", Toast.LENGTH_SHORT).show();
                 }
 
@@ -140,10 +141,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     //insert in DB
 
-    public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE) {
+    public  void InsertInDb(String place_id, String place_name, double slatitude, double slongitude, String RINGER_MODE,Context context) {
 
         //inserting values into db
-        dbHelper = new LocationDBHelper(getApplicationContext());
+        dbHelper = new LocationDBHelper(context);
 
         gtone = dbHelper.getWritableDatabase();
 

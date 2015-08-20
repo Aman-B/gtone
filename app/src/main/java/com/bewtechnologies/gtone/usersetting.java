@@ -373,4 +373,17 @@ public class usersetting extends AppCompatActivity{
         mydatabase.close();
 
     }
+
+    public void deleteplace(String del_place, Context applicationContext) {
+
+        String []delplace = new String[1];
+        delplace[0]=del_place;
+
+
+        dbHelper = new LocationDBHelper(applicationContext);
+        gtone = dbHelper.getWritableDatabase();
+        gtone.delete(LocationContract.LocationEntry.TABLE_NAME, LocationContract.LocationEntry.COLUMN_NAME_PLACE_NAME+"=?",delplace);
+
+        gtone.close();
+    }
 }

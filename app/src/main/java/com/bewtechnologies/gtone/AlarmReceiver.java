@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.Calendar;
+
 /**
  * Created by Aman  on 7/23/2015.
  */
@@ -33,6 +35,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     public boolean marked =false;
 
+    //to remind user after twelve hours
+    long time;
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -46,6 +51,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             usersetting cm = new usersetting();
 
+            Calendar calender=Calendar.getInstance();
+
 
 
             locationListener = new ShowLocationActivity(context);
@@ -58,24 +65,45 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             Log.i("Notifiedo? "," " + MainActivity.Notified);
 
-            Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,context));
+           // Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,context));
 
-            if((MainActivity.Notified==false)) {
-                if (cm.checkMatch(elat, elong, context)) {
+
+            Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)+" dekhe to "+ cm.givecoord(context));
+
+            //For reminding user after 12hours
+            //below method returns hour in 24 hour format
+             long checkTime=calender.get(Calendar.HOUR_OF_DAY);
+             //System.out.println("Time hour: " +checkTime);
+
+             if(time == checkTime)
+             {
+                 MainActivity.Notified=false;
+             }
+
+
+            if((MainActivity.Notified==false))
+            {
+                if (cm.checkMatch(elat, elong, context))
+                {
                     Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
-                    if ((cm.givecoord(context)) != 0) {
+                    if ((cm.givecoord(context)) != 0)
+                    {
 
 
-                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong))) {
+                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
+                        {
                            // Log.i("inside correct location? ", "yes!");
                             notifyuser(context);
+                            time=calender.get(Calendar.HOUR_OF_DAY);
                             MainActivity.Notified = true;
                             Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                         }
-                    } else {
+                    } else
+                    {
                         //Log.i("inside correct location? ", "yes!");
                         notifyuser(context);
+                        time=calender.get(Calendar.HOUR_OF_DAY);
                         MainActivity.Notified = true;
                         Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                     }
@@ -126,6 +154,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                                 mNotifyMgr.notify(0, note);
                                 cm.removetemp(context,usersetting.tlat,usersetting.tlong);
                                 MainActivity.Notified = false;
+                                Log.i("Notified needed? ", " Let me do: " + MainActivity.Notified);
                             }
                         }
                     }

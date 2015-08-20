@@ -159,7 +159,7 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*15;
+        int interval =1000*60*20;
 
         //tracker
        // Log.i("here's to tracker service : ", "cheers!");

@@ -35,7 +35,7 @@ public class TrackerService extends Service implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000*60*15; // 30 minutes
+    private static final long MIN_TIME_BW_UPDATES = 1000*60*20; // 30 minutes
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
