@@ -38,6 +38,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     //to remind user after twelve hours
     long time;
 
+
+    //Sharedpref
+    private boolean notif=false;
+
+
+
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -47,7 +55,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
 
-            Log.i("Mycoordinates : ","here :"+elat + " " + elong);
+          //  Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
             usersetting cm = new usersetting();
 
@@ -63,7 +71,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             i.putExtra("com.bewtechnologies.gtone.restore", ringstate);
             restoreAudioState = PendingIntent.getService(context.getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Log.i("Notifiedo? "," " + MainActivity.Notified);
+//            Log.i("Notifiedo? "," " + MainActivity.Notified);
+
+
 
            // Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,context));
 
@@ -73,39 +83,45 @@ public class AlarmReceiver extends BroadcastReceiver {
             //For reminding user after 12hours
             //below method returns hour in 24 hour format
              long checkTime=calender.get(Calendar.HOUR_OF_DAY);
-             //System.out.println("Time hour: " +checkTime);
+             System.out.println("Time hour: " +time);
 
              if(time == checkTime)
              {
-                 MainActivity.Notified=false;
+                 cm.putdata(false,context);
              }
 
+            Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
-            if((MainActivity.Notified==false))
+            cm.intializesp(context);
+            notif=cm.getdata(context);
+
+            System.out.println("Notif : " +notif);
+
+            if((notif==false))
             {
                 if (cm.checkMatch(elat, elong, context))
                 {
-                    //Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
+                    Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
                     if ((cm.givecoord(context)) != 0)
                     {
-                      //  Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
+                      Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
 
                         if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
                         {
                            Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
                             notifyuser(context);
                             time=calender.get(Calendar.HOUR_OF_DAY);
-                            MainActivity.Notified = true;
-                            Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
+                            cm.putdata(true,context);
+                           // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                         }
                     } else
                     {
                         //Log.i("inside correct location? ", "yes!");
                         notifyuser(context);
                         time=calender.get(Calendar.HOUR_OF_DAY);
-                        MainActivity.Notified = true;
-                        Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
+                      cm.putdata(true,context);
+                       // Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                     }
                 }
             }
@@ -119,7 +135,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
                         {
 
-                            if (MainActivity.Notified == true)
+                            if (notif==true)
                             {
 
                                 //notification for restored state
@@ -157,8 +173,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                                 // Builds the notification and issues it.
                                 mNotifyMgr.notify(0, note);
                                 cm.removetemp(context,usersetting.tlat,usersetting.tlong);
-                                MainActivity.Notified = false;
-                                Log.i("Notified needed? ", " Let me do: " + MainActivity.Notified);
+                              //  MainActivity.Notified = false;
+                              //  Log.i("Notified needed? ", " Let me do: " + MainActivity.Notified);
                             }
                         }
                     }
@@ -167,7 +183,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
         }
-        Log.i("Notified? ", " Out; " + MainActivity.Notified);
+        Log.i("Notified? ", " Out; " + notif);
 
 
     }

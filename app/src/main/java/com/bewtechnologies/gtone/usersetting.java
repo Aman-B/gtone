@@ -2,10 +2,12 @@ package com.bewtechnologies.gtone;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -56,6 +58,9 @@ public class usersetting extends AppCompatActivity{
     private  String mActivityT;
 
 
+    //sharedpref
+
+    SharedPreferences.Editor editor;
 
 
     @Override
@@ -197,6 +202,34 @@ public class usersetting extends AppCompatActivity{
         }
 
 
+
+    }
+
+    public void intializesp(Context context) {
+
+        //shared pref
+        SharedPreferences note= context.getSharedPreferences("note", context.MODE_PRIVATE);
+        editor=note.edit();
+        editor.putBoolean("notif", false);
+        editor.apply();
+
+    }
+
+    public boolean getdata(Context context){
+
+        SharedPreferences note = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean result = note.getBoolean("notif",false);
+
+
+        return result;
+
+    }
+
+    public void putdata(boolean value,Context context)
+    {
+        SharedPreferences note= PreferenceManager.getDefaultSharedPreferences(context);
+        editor =note.edit();
+        editor.putBoolean("notif",value).apply();
     }
 
     @Override
@@ -248,7 +281,7 @@ public class usersetting extends AppCompatActivity{
 
                       double dist = measure(latitude, longitude, dblat, dblong);
                       Log.i("Value of dist--->", "here : " + dist);
-                      if (dist < 200) {
+                      if (dist < 100) {
                           //Log.i("Inside if -->", "Yes we are.");
                           dblatitude = dblat;
                           dblongitude = dblong;
