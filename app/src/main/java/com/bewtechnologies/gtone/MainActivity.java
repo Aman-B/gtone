@@ -159,7 +159,7 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*20;
+        int interval =1000*60*10;
 
         //tracker
        // Log.i("here's to tracker service : ", "cheers!");
@@ -740,11 +740,17 @@ static double  mlat;
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
+
                 if(position==1){
+
+                    mDrawerLayout.closeDrawer(Gravity.LEFT);
                     Intent i = new Intent(MainActivity.this,SavedPlaces.class);
                     startActivity(i);
 
+                }
+                if(position == 0)
+                {   mDrawerLayout.closeDrawer(Gravity.LEFT);
+                    Toast.makeText(MainActivity.this,"Do something about me.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -248,7 +248,7 @@ public class usersetting extends AppCompatActivity{
 
                       double dist = measure(latitude, longitude, dblat, dblong);
                       Log.i("Value of dist--->", "here : " + dist);
-                      if (dist < 600) {
+                      if (dist < 200) {
                           //Log.i("Inside if -->", "Yes we are.");
                           dblatitude = dblat;
                           dblongitude = dblong;

@@ -53,6 +53,8 @@ public class SavedPlaces extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
+
+
         setContentView(R.layout.my_recycler_view);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
@@ -64,7 +66,7 @@ public class SavedPlaces extends AppCompatActivity
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
+        Toast.makeText(SavedPlaces.this, "Swipe cards to delete!", Toast.LENGTH_SHORT).show();
 
 
         // specify an adapter (see also next example)
@@ -136,6 +138,21 @@ public class SavedPlaces extends AppCompatActivity
                             @Override
                             public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
                                 for (int position : reverseSortedPositions) {
+                                    Snackbar.with(getApplicationContext()) // context
+                                            .text("Single-line snackbar")
+                                            .actionLabel("Undo")
+                                            .actionColor(Color.RED)
+                                            .actionListener(actionListener)// text to display
+                                            .show(SavedPlaces.this);
+
+                                    //save deleted item's details
+                                    dpos=position;
+                                    del_place =places.get(position).place_name;
+                                    dringermode= places.get(position).place_ringermode;
+                                    SavedelPlaceDetails(getApplicationContext(),del_place);
+                                    System.out.println("Deleted place : "+ del_place);
+                                    delplace.deleteplace(del_place, getApplicationContext());
+
                                     places.remove(position);
                                     mAdapter.notifyItemRemoved(position);
                                 }

@@ -68,7 +68,7 @@ public class AlarmReceiver extends BroadcastReceiver {
            // Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,context));
 
 
-            Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)+" dekhe to "+ cm.givecoord(context));
+           // Log.i("Isnear", "see : "+cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)+" one lat: "+usersetting.tlat+" and long : "+usersetting.tlong+" dekhe to "+ cm.givecoord(context));
 
             //For reminding user after 12hours
             //below method returns hour in 24 hour format
@@ -85,15 +85,15 @@ public class AlarmReceiver extends BroadcastReceiver {
             {
                 if (cm.checkMatch(elat, elong, context))
                 {
-                    Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
+                    //Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
                     if ((cm.givecoord(context)) != 0)
                     {
-
+                      //  Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
 
                         if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
                         {
-                           // Log.i("inside correct location? ", "yes!");
+                           Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
                             notifyuser(context);
                             time=calender.get(Calendar.HOUR_OF_DAY);
                             MainActivity.Notified = true;
@@ -108,15 +108,19 @@ public class AlarmReceiver extends BroadcastReceiver {
                         Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                     }
                 }
-                //}
+            }
 
-                else {
-                    if ((cm.givecoord(context)) != 0) {
+            else
+            {
+                    if ((cm.givecoord(context)) != 0)
+                    {
 
 
-                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong))) {
+                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
+                        {
 
-                            if (MainActivity.Notified == true) {
+                            if (MainActivity.Notified == true)
+                            {
 
                                 //notification for restored state
 
@@ -159,9 +163,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         }
                     }
 
-                }
-
             }
+
+
         }
         Log.i("Notified? ", " Out; " + MainActivity.Notified);
 
