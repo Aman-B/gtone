@@ -172,6 +172,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                                 // Builds the notification and issues it.
                                 mNotifyMgr.notify(0, note);
+                                cm.putdata(false,context);
                                 cm.removetemp(context,usersetting.tlat,usersetting.tlong);
                               //  MainActivity.Notified = false;
                               //  Log.i("Notified needed? ", " Let me do: " + MainActivity.Notified);
