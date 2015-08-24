@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -131,6 +132,10 @@ static double  mlat;
     //got any place to set ringer mode?
     boolean got_place=false;
 
+
+    //powered by google
+    ImageView pwd;
+
     @Override
   protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,6 +166,7 @@ static double  mlat;
         mlong=ShowLocationActivity.longitude;
 
 
+
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -176,11 +182,10 @@ static double  mlat;
 
 
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
         //remove this after testing
-      /*  usersetting cm = new usersetting();
-        cm.removetemp(getApplicationContext(),13.3441804,74.7954222);
-*/
+       /* usersetting cm = new usersetting();
+        cm.removetemp(getApplicationContext(),13.3441698,74.7954148);*/
+
 
         /*locationListener =  new ShowLocationActivity(getApplicationContext());
         mlat=ShowLocationActivity.latitude;

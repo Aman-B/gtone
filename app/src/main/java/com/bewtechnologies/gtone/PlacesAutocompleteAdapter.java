@@ -17,8 +17,7 @@ package com.bewtechnologies.gtone;
  */
 
 
-
-        import android.content.Context;
+import android.content.Context;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
@@ -74,6 +73,8 @@ public class PlacesAutocompleteAdapter
      */
     private AutocompleteFilter mPlaceFilter;
 
+
+
     /**
      * Initializes with a resource for text rows and autocomplete query bounds.
      *
@@ -85,6 +86,7 @@ public class PlacesAutocompleteAdapter
         mGoogleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
+
     }
 
     /**
@@ -162,6 +164,7 @@ public class PlacesAutocompleteAdapter
      */
     private ArrayList<PlaceAutocomplete> getAutocomplete(CharSequence constraint) {
         if (mGoogleApiClient.isConnected()) {
+
             Log.i(TAG, "Starting autocomplete query for: " + constraint);
 
             // Submit the query to the autocomplete API and retrieve a PendingResult that will
@@ -199,6 +202,7 @@ public class PlacesAutocompleteAdapter
                 // Get the details of this prediction and copy it into a new PlaceAutocomplete object.
                 resultList.add(new PlaceAutocomplete(prediction.getPlaceId(),
                         prediction.getDescription()));
+                resultList.add("Footer");
             }
 
             // Release the buffer now that all data has been copied.
