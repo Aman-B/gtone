@@ -55,7 +55,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
 
-          //  Log.i("Mycoordinates : ","here :"+elat + " " + elong);
+            Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
             usersetting cm = new usersetting();
 
@@ -100,79 +100,76 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 if (cm.checkMatch(elat, elong, context))
                 {
-                    Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
+                        Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
 
-                    if ((cm.givecoord(context)) != 0)
-                    {
-                      //Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
-
-                        if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
+                        if ((cm.givecoord(context)) != 0)
                         {
-                          // Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
+                          //Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
+
+                            if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
+                            {
+                              // Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
+                                notifyuser(context);
+                                MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
+                                cm.putdata(true,context);
+                               // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
+                            }
+                            /*else{
+                                *//*cm.removetemp(context,usersetting.tlat,usersetting.tlong);
+                                //notification for restored state
+
+
+                                cm.putdata(false,context);*//*
+                            }*/
+                        }
+                        else
+                        {
+                            //Log.i("inside correct location? ", "yes!");
                             notifyuser(context);
                             MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
                             cm.putdata(true,context);
-                           // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
+                           // Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                         }
-                        /*else{
-                            *//*cm.removetemp(context,usersetting.tlat,usersetting.tlong);
-                            //notification for restored state
-
-
-                            cm.putdata(false,context);*//*
-                        }*/
-                    }
-                    else
-                    {
-                        //Log.i("inside correct location? ", "yes!");
-                        notifyuser(context);
-                        MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
-                      cm.putdata(true,context);
-                       // Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
-                    }
                 }
                 else
                 {
-                    cm.putdata(false,context);
-                    cm.removetemp(context,usersetting.tlat,usersetting.tlong);
-                    NotificationCompat.Builder mBuilder =
-                            new NotificationCompat.Builder(context)
-                                    .setSmallIcon(R.drawable.batdroid)
-                                    .setContentTitle("alarmreceive")
-                                    .setAutoCancel(true);
-
-
-                    adm.setRingerMode(ringstate);
-                    if (ringstate == 0)
+                    if(cm.getdata(context))
                     {
-                        mBuilder.setContentTitle("Your phone is out of silent mode.");
-                        mBuilder.setTicker("Gtone- Phone out of silent mode.");
+                        cm.putdata(false, context);
+                        cm.removetemp(context, usersetting.tlat, usersetting.tlong);
+                        NotificationCompat.Builder mBuilder =
+                                new NotificationCompat.Builder(context)
+                                        .setSmallIcon(R.drawable.batdroid)
+                                        .setContentTitle("alarmreceive")
+                                        .setAutoCancel(true);
+
+
+                        adm.setRingerMode(ringstate);
+                        if (ringstate == 0) {
+                            mBuilder.setContentTitle("Your phone is out of silent mode.");
+                            mBuilder.setTicker("Gtone- Phone out of silent mode.");
+                        } else if (ringstate == 1) {
+                            // Log.i("Inside main vibrate mode 1:", "yes");
+                            mBuilder.setContentTitle("Your phone is out of vibrate mode.");
+                            mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
+                        } else {
+                            mBuilder.setContentTitle("Your phone is out of normal mode.");
+                            mBuilder.setTicker("Gtone- Phone out of normal mode.");
+                        }
+
+
+                        NotificationManager mNotifyMgr =
+                                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                        Notification note = mBuilder.build();
+
+                        note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+                        // Builds the notification and issues it.
+                        mNotifyMgr.notify(0, note);
                     }
-                    else if (ringstate == 1)
-                    {
-                        // Log.i("Inside main vibrate mode 1:", "yes");
-                        mBuilder.setContentTitle("Your phone is out of vibrate mode.");
-                        mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
-                    }
-                    else
-                    {
-                        mBuilder.setContentTitle("Your phone is out of normal mode.");
-                        mBuilder.setTicker("Gtone- Phone out of normal mode.");
-                    }
-
-
-                    NotificationManager mNotifyMgr =
-                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-                    Notification note = mBuilder.build();
-
-                    note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
-
-
-                    // Builds the notification and issues it.
-                    mNotifyMgr.notify(0, note);
-
                 }
 
 
