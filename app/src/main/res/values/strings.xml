@@ -24,5 +24,8 @@
     -->
     <string name="place_details">&lt;b>%1$s&lt;/b>&lt;br/>&lt;i>Place Id: %2$s&lt;/i>&lt;br/>Address: %3$s&lt;br/>Phone: %4$s&lt;br/>Website: %5$s</string>
     <string name="title_activity_maps">Map</string>
+    <string name="details"> Ever forgot to put your phone on silent ? Well worry no more, we\'ll do that for you automatically.
+        Just select the place and the mode you want your phone to be in. And we will do the rest.
+    </string>
 
 </resources>

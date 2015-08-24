@@ -51,7 +51,14 @@
     android:id="@+id/savesetting"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="125dp" />
+        android:layout_marginBottom="125dp"
+        android:background="#ff25bbff"
+        android:textColor="#ffffffff"
+        android:elegantTextHeight="false"
+        android:typeface="sans"
+        style="@android:style/Widget.Button"
+        android:outlineProvider="background"
+        android:theme="@android:style/Widget.Button"/>
 
 
 </RelativeLayout>

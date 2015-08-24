@@ -83,50 +83,100 @@ public class AlarmReceiver extends BroadcastReceiver {
             //For reminding user after 12hours
             //below method returns hour in 24 hour format
              long checkTime=calender.get(Calendar.HOUR_OF_DAY);
-             System.out.println("Time hour: " +time);
+            // System.out.println("Time hour: " +MainActivity.timeline);
 
-             if(time == checkTime)
+             if(MainActivity.timeline == checkTime)
              {
                  cm.putdata(false,context);
              }
 
-            Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
+          //  Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
             cm.intializesp(context);
             notif=cm.getdata(context);
 
             System.out.println("Notif : " +notif);
 
-            if((notif==false))
-            {
+
                 if (cm.checkMatch(elat, elong, context))
                 {
-                    Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
+                    Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
 
                     if ((cm.givecoord(context)) != 0)
                     {
-                      Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
+                      //Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
 
                         if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
                         {
-                           Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
+                          // Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
                             notifyuser(context);
-                            time=calender.get(Calendar.HOUR_OF_DAY);
+                            MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
                             cm.putdata(true,context);
                            // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                         }
-                    } else
+                        /*else{
+                            *//*cm.removetemp(context,usersetting.tlat,usersetting.tlong);
+                            //notification for restored state
+
+
+                            cm.putdata(false,context);*//*
+                        }*/
+                    }
+                    else
                     {
                         //Log.i("inside correct location? ", "yes!");
                         notifyuser(context);
-                        time=calender.get(Calendar.HOUR_OF_DAY);
+                        MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
                       cm.putdata(true,context);
                        // Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                     }
                 }
-            }
+                else
+                {
+                    cm.putdata(false,context);
+                    cm.removetemp(context,usersetting.tlat,usersetting.tlong);
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(context)
+                                    .setSmallIcon(R.drawable.batdroid)
+                                    .setContentTitle("alarmreceive")
+                                    .setAutoCancel(true);
 
-            else
+
+                    adm.setRingerMode(ringstate);
+                    if (ringstate == 0)
+                    {
+                        mBuilder.setContentTitle("Your phone is out of silent mode.");
+                        mBuilder.setTicker("Gtone- Phone out of silent mode.");
+                    }
+                    else if (ringstate == 1)
+                    {
+                        // Log.i("Inside main vibrate mode 1:", "yes");
+                        mBuilder.setContentTitle("Your phone is out of vibrate mode.");
+                        mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
+                    }
+                    else
+                    {
+                        mBuilder.setContentTitle("Your phone is out of normal mode.");
+                        mBuilder.setTicker("Gtone- Phone out of normal mode.");
+                    }
+
+
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                    Notification note = mBuilder.build();
+
+                    note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(0, note);
+
+                }
+
+
+           /* if (notif==true)
             {
                     if ((cm.givecoord(context)) != 0)
                     {
@@ -135,8 +185,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                         if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
                         {
 
-                            if (notif==true)
-                            {
+
+
 
                                 //notification for restored state
 
@@ -176,15 +226,15 @@ public class AlarmReceiver extends BroadcastReceiver {
                                 cm.removetemp(context,usersetting.tlat,usersetting.tlong);
                               //  MainActivity.Notified = false;
                               //  Log.i("Notified needed? ", " Let me do: " + MainActivity.Notified);
-                            }
+
                         }
                     }
 
-            }
+            }*/
 
 
         }
-        Log.i("Notified? ", " Out; " + notif);
+        //Log.i("Notified? ", " Out; " + notif);
 
 
     }

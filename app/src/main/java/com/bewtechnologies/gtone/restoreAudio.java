@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.IBinder;
-import android.util.Log;
 
 /**
  * Created by Aman  on 7/19/2015.
@@ -23,7 +22,7 @@ public class restoreAudio extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("Inside rA oncreate?", "yes we are");
+     //   Log.i("Inside rA oncreate?", "yes we are");
 
     }
 
@@ -32,7 +31,7 @@ public class restoreAudio extends Service {
 
         marklat=AlarmReceiver.elat;
         marklong=AlarmReceiver.elong;
-        Log.i("mark latlng :"," "+marklat+" "+marklong);
+       // Log.i("mark latlng :"," "+marklat+" "+marklong);
 
         handleCommand(intent);
 

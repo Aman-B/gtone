@@ -9,7 +9,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -280,7 +279,7 @@ public class usersetting extends AppCompatActivity{
                       //Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
 
                       double dist = measure(latitude, longitude, dblat, dblong);
-                      Log.i("Value of dist--->", "here : " + dist);
+                     // Log.i("Value of dist--->", "here : " + dist);
                       if (dist < 100) {
                           //Log.i("Inside if -->", "Yes we are.");
                           dblatitude = dblat;
@@ -381,7 +380,7 @@ public class usersetting extends AppCompatActivity{
                 tlat = cursor.getDouble(0);
                 tlong =cursor.getDouble(1);
             }while(cursor.moveToNext());
-
+            mydatabase.close();
             return  1;
          }
 

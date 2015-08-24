@@ -1,8 +1,10 @@
 package com.bewtechnologies.gtone;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -123,9 +125,11 @@ static double  mlat;
     public static boolean Notified =false;
     public static double flat;
     public static double flong;
-    public static double timeline;
+    public static double timeline =0;
 
 
+    //got any place to set ringer mode?
+    boolean got_place=false;
 
     @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +164,7 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*10;
+        int interval =1000*60*2;
 
         //tracker
        // Log.i("here's to tracker service : ", "cheers!");
@@ -173,6 +177,10 @@ static double  mlat;
 
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
 
+        //remove this after testing
+      /*  usersetting cm = new usersetting();
+        cm.removetemp(getApplicationContext(),13.3441804,74.7954222);
+*/
 
         /*locationListener =  new ShowLocationActivity(getApplicationContext());
         mlat=ShowLocationActivity.latitude;
@@ -420,35 +428,42 @@ static double  mlat;
 
 
         //to the setting page
-        goset = (Button) findViewById(R.id.go_set);
+      //  goset = (Button) findViewById(R.id.go_set);
 
 
 
 
 
-        goset.setOnClickListener(new View.OnClickListener() {
+    /*    goset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this,usersetting.class);
                 startActivity(i);
                 sel_place = (TextView) findViewById(R.id.selection);
             }
-        });
+        });*/
         //checking sound
         set=(Button) findViewById(R.id.set);
         set.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
-                Intent set = new Intent(MainActivity.this,SettingsActivity.class);
+                if(got_place) {
 
-                //putting values for using in settings activity
-                set.putExtra("com.bewtechnologies.gtone.place_name", place_name);
-                set.putExtra("com.bewtechnologies.gtone.place_id",place_id);
-                set.putExtra("com.bewtechnologies.gtone.slatitude",slatitude);
-                set.putExtra("com.bewtechnologies.gtone.slongitude",slongitude);
+                    Intent set = new Intent(MainActivity.this, SettingsActivity.class);
 
-                startActivity(set);
+                    //putting values for using in settings activity
+                    set.putExtra("com.bewtechnologies.gtone.place_name", place_name);
+                    set.putExtra("com.bewtechnologies.gtone.place_id", place_id);
+                    set.putExtra("com.bewtechnologies.gtone.slatitude", slatitude);
+                    set.putExtra("com.bewtechnologies.gtone.slongitude", slongitude);
+
+                    startActivity(set);
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),"Please select a place first.",Toast.LENGTH_SHORT).show();
+                }
 
             }
 
@@ -500,25 +515,25 @@ static double  mlat;
            c.moveToFirst();
            do{
            ringermode = c.getString(0);
-            Log.i("Found saved ringer mode? Here's is c: " + c.getString(0), "Here is ringermode: " + ringermode);
+            //Log.i("Found saved ringer mode? Here's is c: " + c.getString(0), "Here is ringermode: " + ringermode);
              }while(c.moveToNext());
 
            if (ringermode.equals("Silent mode")) {
-               Log.i("Inside silent mode :", "yes");
+               //Log.i("Inside silent mode :", "yes");
                return 0;
            } else if (ringermode.equals("Vibrate mode")) {
-               Log.i("Inside vibrate mode :", "yes");
+               //Log.i("Inside vibrate mode :", "yes");
                return 1;
            }
            else
            {
-               Log.i("Inside normal1 :", "yes");
+             //  Log.i("Inside normal1 :", "yes");
                return 2;
            }
        }
 
        else
-       {      Log.i("Ringer mode saved? ", "This one : "+ringermode);
+       {      //Log.i("Ringer mode saved? ", "This one : "+ringermode);
                return 2;
        }
 
@@ -751,8 +766,38 @@ static double  mlat;
                 }
                 if(position == 0)
                 {   mDrawerLayout.closeDrawer(Gravity.LEFT);
-                    Toast.makeText(MainActivity.this,"Do something about me.", Toast.LENGTH_SHORT).show();
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                            MainActivity.this);
+
+                    String Title = "                 Gtone";
+                    String s = " Have you ever forgotten to put your phone on silent when you reach somewhere important like office, college etc. Well, we're"+
+                            " here to help you."+"\n"+" Just enter the name of the place and select the mode you want your phone to be in. And relax, we'll manage the rest!";
+
+                    alertDialogBuilder
+                            .setCancelable(true)
+                            .setTitle(Title)
+                            .setMessage(s)
+
+                            .setPositiveButton("Alright!",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // get user input and set it to result
+                                            // edit text
+                                            dialog.cancel();
+                                        }
+                                    });
+
+
+
+                    // create alert dialog
+                    final AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    // show it
+                    alertDialog.show();
+
                 }
+
             }
         });
 
@@ -980,7 +1025,7 @@ static double  mlat;
                     Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Called getPlaceById to get Place details for " + item.placeId);
 
-
+            got_place=true;
 
         }
     };
