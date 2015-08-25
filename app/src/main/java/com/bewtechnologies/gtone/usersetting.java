@@ -9,6 +9,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -60,6 +61,10 @@ public class usersetting extends AppCompatActivity{
     //sharedpref
 
     SharedPreferences.Editor editor;
+
+
+    //notys
+    public static boolean notys=false;
 
 
     @Override
@@ -276,11 +281,11 @@ public class usersetting extends AppCompatActivity{
 
                       // Log.i("Inside check match recevied coordinates -->", "Here: " + latitude + longitude);
 
-                      //Log.i("Inside check match db coordinates -->", "Here: " + dblat + dblong);
+                      Log.i("Inside check match db coordinates dist -->", "Here: "+(++i) +" "+ dblat + dblong);
 
                       double dist = measure(latitude, longitude, dblat, dblong);
-                     // Log.i("Value of dist--->", "here : " + dist);
-                      if (dist < 100) {
+                     Log.i("Value of dist (db)--->", "here : " + dist);
+                      if (dist < 250) {
                           //Log.i("Inside if -->", "Yes we are.");
                           dblatitude = dblat;
                           dblongitude = dblong;
@@ -332,9 +337,9 @@ public class usersetting extends AppCompatActivity{
      //   Log.i("Inside checkmatch 2-->"," coord="+"elat :"+ elat+" elong"+ elong+" alatitude"+ latitude+" alongitude"+longitude);
 
       //  Log.i("Inside checkmatch 2-->"," yes we are.");
-      //  Log.i("Value of dist---> 2 ", "here : " + dist);
+      Log.i("Value of dist (us)--->", "here : " + dist);
 
-        if(dist<100)
+        if(dist<250)
         {
             IsNear=true;
             return  IsNear;

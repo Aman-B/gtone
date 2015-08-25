@@ -4,13 +4,21 @@ package com.bewtechnologies.gtone;
  * Created by Aman on 7/16/2015.
  */
 
+import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +41,8 @@ public class ShowLocationActivity implements LocationListener {
 
 
     public  static  boolean match;
+
+
 
     public ShowLocationActivity(Context context){
 
@@ -75,7 +85,92 @@ public class ShowLocationActivity implements LocationListener {
             match=cm.checkMatch(latitude,longitude,context);*/
 
             Toast.makeText(context,"Location not avaialable,using prev ones",Toast.LENGTH_SHORT).show();
+
+            //ask user to enable gps
+            try {
+                int locationmode= Settings.Secure.getInt(MainActivity.mcon.getContentResolver(),Settings.Secure.LOCATION_MODE);
+
+                switch(locationmode)
+                {
+                    case 0: createdialog(context);
+                            break;
+                    case 1: createdialog(context);
+                        break;
+
+                    case 2:createdialog(context);
+                        break;
+
+
+                    case 3:
+                        break;
+                    default: break;
+
+                }
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
+
         }
+
+
+    }
+
+    private void createdialog(Context context) {
+
+      try {
+          AlertDialog.Builder adialog = new AlertDialog.Builder(MainActivity.mcon);
+          adialog.setTitle("Enable GPS settings");
+          adialog.setMessage("Location service of your phone needs to be enabled for this app and it's mode must be set to high accuracy. Do you want to enable it?");
+
+
+          adialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+
+                  Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                  MainActivity.mcon.startActivity(i);
+              }
+          });
+
+          adialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                  dialog.cancel();
+              }
+          });
+
+          adialog.show();
+      }
+      catch(Exception e)
+      {
+          e.printStackTrace();
+          Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+          MainActivity.mcon.startActivity(i);
+          PendingIntent pendInt = PendingIntent.getService(MainActivity.mcon,0,i,PendingIntent.FLAG_UPDATE_CURRENT);
+          // if alertdialog box fails, try notification.
+          NotificationCompat.Builder mBuilder =
+                  new NotificationCompat.Builder(MainActivity.mcon)
+                          .setSmallIcon(R.drawable.batdroid)
+                          .setContentText("GPS needs to be enabled and set to high accuracy for Gtone to work.")
+                          .setContentTitle("alarmreceive")
+                          .setContentIntent(pendInt)
+                          .setAutoCancel(true);
+          NotificationManager mNotifyMgr =
+                  (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+          Notification note = mBuilder.build();
+
+          note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+          // Builds the notification and issues it.
+          mNotifyMgr.notify(0, note);
+
+      }
 
 
     }

@@ -135,6 +135,8 @@ static double  mlat;
 
     //powered by google
     ImageView pwd;
+    //saving contxt to use globally
+    public static Context mcon;
 
     @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -154,7 +156,8 @@ static double  mlat;
         getSupportActionBar().setHomeButtonEnabled(true);
 
 
-
+        //context saving
+        mcon=this;
 
 
 
@@ -170,10 +173,10 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*2;
+        int interval =1000*60*11;
 
         //tracker
-       // Log.i("here's to tracker service : ", "cheers!");
+       Log.i("here's to tracker service : ", "cheers!");
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         alarmIntent.putExtra("resume.lat",mlat);
         alarmIntent.putExtra("resume.long",mlong);
@@ -562,7 +565,7 @@ static double  mlat;
         int interval =1000*60;
 */
         /*//tracker
-        Log.i("here's to tracker service : ", "cheers!");
+
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         alarmIntent.putExtra("resume.lat",mlat);
         alarmIntent.putExtra("resume.long",mlong);

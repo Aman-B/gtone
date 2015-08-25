@@ -55,6 +55,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
 
+           /* elat= 13.348605;
+            elong=74.793249;
+*/
             Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
             usersetting cm = new usersetting();
@@ -100,10 +103,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 if (cm.checkMatch(elat, elong, context))
                 {
-                        Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
+                       // Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
 
                         if ((cm.givecoord(context)) != 0)
                         {
+                            Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
                           //Log.i("inside correct givecoord? ", "yes! cm0 : "+(cm.checkMatch(elat,elong,usersetting.tlat,usersetting.tlong)));
 
                             if (!(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)))
@@ -111,6 +115,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                               // Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
                                 notifyuser(context);
                                 MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
+                                usersetting.notys=true;
                                 cm.putdata(true,context);
                                // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                             }
@@ -133,14 +138,16 @@ public class AlarmReceiver extends BroadcastReceiver {
                 }
                 else
                 {
-                    if(cm.getdata(context))
+                    notif=cm.getdata(context);
+                    if(notif)
                     {
                         cm.putdata(false, context);
+                        usersetting.notys=true;
                         cm.removetemp(context, usersetting.tlat, usersetting.tlong);
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(context)
-                                        .setSmallIcon(R.drawable.batdroid)
-                                        .setContentTitle("alarmreceive")
+                                        .setSmallIcon(R.drawable.ic_launcher)
+                                        .setContentTitle("gtone")
                                         .setAutoCancel(true);
 
 
@@ -231,7 +238,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
         }
-        //Log.i("Notified? ", " Out; " + notif);
+        Log.i("Notified? ", " Out; " + notif);
 
 
     }
@@ -268,7 +275,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.batdroid)
+                        .setSmallIcon(R.drawable.ic_launcher)
                         .addAction(R.drawable.next, "Undo?", restoreAudioState)
                         .setContentTitle("alarmreceive")
 
