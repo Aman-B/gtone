@@ -173,7 +173,7 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*11;
+        int interval =1000*60*5;
 
         //tracker
        Log.i("here's to tracker service : ", "cheers!");
@@ -183,11 +183,13 @@ static double  mlat;
 
         pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
 
+        //remove this after testing
+      /*  usersetting cm = new usersetting();
+        cm.removetemp(getApplicationContext(),13.344328,74.7952059);*/
+
 
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-        //remove this after testing
-       /* usersetting cm = new usersetting();
-        cm.removetemp(getApplicationContext(),13.3441698,74.7954148);*/
+
 
 
         /*locationListener =  new ShowLocationActivity(getApplicationContext());

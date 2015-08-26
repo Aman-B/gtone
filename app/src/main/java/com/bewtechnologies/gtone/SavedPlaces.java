@@ -115,7 +115,7 @@ public class SavedPlaces extends AppCompatActivity
                                 for (int position : reverseSortedPositions) {
 
                                     Snackbar.with(getApplicationContext()) // context
-                                            .text("Single-line snackbar")
+                                            .text("Place deleted.")
                                             .actionLabel("Undo")
                                             .actionColor(Color.RED)
                                             .actionListener(actionListener)// text to display
@@ -139,7 +139,7 @@ public class SavedPlaces extends AppCompatActivity
                             public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
                                 for (int position : reverseSortedPositions) {
                                     Snackbar.with(getApplicationContext()) // context
-                                            .text("Single-line snackbar")
+                                            .text("Place deleted.")
                                             .actionLabel("Undo")
                                             .actionColor(Color.RED)
                                             .actionListener(actionListener)// text to display

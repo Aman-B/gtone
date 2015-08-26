@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -60,11 +59,12 @@ public class usersetting extends AppCompatActivity{
 
     //sharedpref
 
-    SharedPreferences.Editor editor;
+    public static SharedPreferences.Editor editor;
+//    public static final SharedPreferences note= MainActivity.mcon.getSharedPreferences("note", MainActivity.mcon.MODE_PRIVATE);
 
 
     //notys
-    public static boolean notys=false;
+    public static int notys;
 
 
     @Override
@@ -212,28 +212,27 @@ public class usersetting extends AppCompatActivity{
     public void intializesp(Context context) {
 
         //shared pref
-        SharedPreferences note= context.getSharedPreferences("note", context.MODE_PRIVATE);
-        editor=note.edit();
+
+        /*editor=note.edit();
         editor.putBoolean("notif", false);
-        editor.apply();
+        editor.apply();*/
 
     }
 
-    public boolean getdata(Context context){
+   /* public boolean getdata(Context context){
 
-        SharedPreferences note = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean result = note.getBoolean("notif",false);
+        //SharedPreferences note = PreferenceManager.getDefaultSharedPreferences(context);
+       *//* *//**//*boolean result = note.getBoolean("notif",false);*//**//*
 
 
-        return result;
+        return result;*//*
 
-    }
+    }*/
 
     public void putdata(boolean value,Context context)
     {
-        SharedPreferences note= PreferenceManager.getDefaultSharedPreferences(context);
-        editor =note.edit();
-        editor.putBoolean("notif",value).apply();
+        //SharedPreferences noty= PreferenceManager.getDefaultSharedPreferences(context);
+       //
     }
 
     @Override
@@ -373,7 +372,7 @@ public class usersetting extends AppCompatActivity{
     public double givecoord(Context context) {
 
        mydatabase = context.openOrCreateDatabase("coord",0,null);
-       mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
+       mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double,Note int);");
        Cursor cursor = mydatabase.rawQuery("Select * from coordi",null);
 
         if(cursor!=null && cursor.getCount()>0)
@@ -384,6 +383,7 @@ public class usersetting extends AppCompatActivity{
             do {
                 tlat = cursor.getDouble(0);
                 tlong =cursor.getDouble(1);
+                notys=cursor.getInt(2);
             }while(cursor.moveToNext());
             mydatabase.close();
             return  1;
@@ -394,21 +394,21 @@ public class usersetting extends AppCompatActivity{
     }
 
 
-    public void savecoord(Context context,double lat,double longi) {
+    public void savecoord(Context context,double lat,double longi,int nots) {
 
         mydatabase = context.openOrCreateDatabase("coord",0,null);
-        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
-        mydatabase.execSQL("INSERT INTO coordi VALUES(" + lat + "," + longi + ");");
+        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double, Note int);");
+        mydatabase.execSQL("INSERT INTO coordi VALUES(" + lat + "," + longi + ","+ nots +");");
         mydatabase.close();
     }
 
     public void removetemp(Context context, double tlat, double tlong) {
 
         mydatabase = context.openOrCreateDatabase("coord",0,null);
-        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double);");
+        mydatabase.execSQL("CREATE TABLE IF NOT EXISTS coordi(Latitude double, Longitude double, Note int);");
         mydatabase.delete("coordi", "Latitude" + "='"+tlat+"'", null);
         mydatabase.close();
-
+        notys=0;
     }
 
     public void deleteplace(String del_place, Context applicationContext) {

@@ -153,7 +153,7 @@ public class ShowLocationActivity implements LocationListener {
           // if alertdialog box fails, try notification.
           NotificationCompat.Builder mBuilder =
                   new NotificationCompat.Builder(MainActivity.mcon)
-                          .setSmallIcon(R.drawable.batdroid)
+                          .setSmallIcon(R.drawable.ic_launcher)
                           .setContentText("GPS needs to be enabled and set to high accuracy for Gtone to work.")
                           .setContentTitle("alarmreceive")
                           .setContentIntent(pendInt)

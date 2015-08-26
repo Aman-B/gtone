@@ -40,7 +40,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
     //Sharedpref
-    private boolean notif=false;
+    private int notif;
 
 
 
@@ -55,9 +55,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
 
-           /* elat= 13.348605;
-            elong=74.793249;
-*/
+           /* elat= 13.344328;
+            elong=74.7952059;*/
             Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
             usersetting cm = new usersetting();
@@ -95,15 +94,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 
           //  Log.i("temp coord ", "here: "+ usersetting.tlat+" "+usersetting.tlong);
 
-            cm.intializesp(context);
-            notif=cm.getdata(context);
+
+            notif=usersetting.notys;
 
             System.out.println("Notif : " +notif);
 
 
                 if (cm.checkMatch(elat, elong, context))
                 {
-                       // Log.i("temp coord ", "here: " + usersetting.tlat + " " + usersetting.tlong);
+                       Log.i("temp coord ", "here: "+"give co"+cm.givecoord(context)+" " + usersetting.tlat + " " + usersetting.tlong);
 
                         if ((cm.givecoord(context)) != 0)
                         {
@@ -115,8 +114,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                               // Log.i("inside correct location? ", "yes! cm"+(cm.checkMatch(elat, elong, usersetting.tlat, usersetting.tlong)));
                                 notifyuser(context);
                                 MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
-                                usersetting.notys=true;
-                                cm.putdata(true,context);
+                                notif=1;
+                              //  notif=true;
+                               /* usersetting.editor.putBoolean("notif",true);
+                                usersetting.editor.apply();*/
+                                //cm.putdata(true,context);
                                // Log.i("Notifiedi? ", " Let me do: " + MainActivity.Notified);
                             }
                             /*else{
@@ -131,18 +133,22 @@ public class AlarmReceiver extends BroadcastReceiver {
                         {
                             //Log.i("inside correct location? ", "yes!");
                             notifyuser(context);
+                            notif =1;
                             MainActivity.timeline=calender.get(Calendar.HOUR_OF_DAY);
-                            cm.putdata(true,context);
+                            //cm.putdata(true,context);
                            // Log.i("Notifiede? ", " Let me do: " + MainActivity.Notified);
                         }
                 }
                 else
                 {
-                    notif=cm.getdata(context);
-                    if(notif)
+                    cm.givecoord(context);
+                    notif=usersetting.notys;
+                    if(notif==1)
                     {
-                        cm.putdata(false, context);
-                        usersetting.notys=true;
+                        Log.i("Inside out mode? :", "yes.");
+                      //  usersetting.editor.putBoolean("notif",false);
+
+                        //usersetting.notys=true;
                         cm.removetemp(context, usersetting.tlat, usersetting.tlong);
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(context)
@@ -176,7 +182,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                         // Builds the notification and issues it.
                         mNotifyMgr.notify(0, note);
+
                     }
+
                 }
 
 
@@ -259,7 +267,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         //marking
         usersetting cm = new usersetting();
-        cm.savecoord(context,elat,elong);
+        cm.savecoord(context,elat,elong,1);
 
 
 
