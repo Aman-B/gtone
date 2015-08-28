@@ -54,9 +54,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
-
-           /* elat= 13.344328;
-            elong=74.7952059;*/
+            /*elat=  15.3536397;
+            elong= 75.7936571;*/
             Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
             usersetting cm = new usersetting();

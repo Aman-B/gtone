@@ -82,6 +82,7 @@
             android:enabled="true"
             android:exported="true"><intent-filter>
             <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            <action android:name="android.intent.action.PROVIDER_CHANGED" ></action>
            <!-- <action android:name="com.bewtechnologies.gtone.Mate"></action>-->
         </intent-filter></receiver>
     </application>
