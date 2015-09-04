@@ -43,7 +43,7 @@ public class Bootreceiver extends BroadcastReceiver implements LocationListener{
            boolean isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-            if (!isGPSEnabled && !isNetworkEnabled) {
+            if (!isGPSEnabled) {
                 // no network provider is enabled
 
 
@@ -51,7 +51,7 @@ public class Bootreceiver extends BroadcastReceiver implements LocationListener{
             } else
             {
                 AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                int interval =1000*60*2;
+                int interval =1000*60*5;
                 Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 
                 Log.i("Alarmreceiver started: ","GPS enabled");
@@ -64,7 +64,7 @@ public class Bootreceiver extends BroadcastReceiver implements LocationListener{
 
         else{
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            int interval =1000*60*2;
+            int interval =1000*60*5;
             Log.i("Alarmreceiver started: ","Phone rebooted");
             Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 

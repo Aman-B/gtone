@@ -140,50 +140,51 @@ public class AlarmReceiver extends BroadcastReceiver {
                 }
                 else
                 {
-                    cm.givecoord(context);
-                    notif=usersetting.notys;
-                    if(notif==1)
+                    if((elat!=0)&&(elong!=0))
                     {
-                        Log.i("Inside out mode? :", "yes.");
-                      //  usersetting.editor.putBoolean("notif",false);
+                        cm.givecoord(context);
+                        notif = usersetting.notys;
+                        if (notif == 1) {
+                            Log.i("Inside out mode? :", "yes.");
+                            //  usersetting.editor.putBoolean("notif",false);
 
-                        //usersetting.notys=true;
-                        cm.removetemp(context, usersetting.tlat, usersetting.tlong);
-                        NotificationCompat.Builder mBuilder =
-                                new NotificationCompat.Builder(context)
-                                        .setSmallIcon(R.drawable.ic_launcher)
-                                        .setContentTitle("gtone")
-                                        .setAutoCancel(true);
+                            //usersetting.notys=true;
+                            cm.removetemp(context, usersetting.tlat, usersetting.tlong);
+                            NotificationCompat.Builder mBuilder =
+                                    new NotificationCompat.Builder(context)
+                                            .setSmallIcon(R.drawable.ic_launcher)
+                                            .setContentTitle("gtone")
+                                            .setAutoCancel(true);
 
 
-                        adm.setRingerMode(ringstate);
-                        if (ringstate == 0) {
-                            mBuilder.setContentTitle("Your phone is out of silent mode.");
-                            mBuilder.setTicker("Gtone- Phone out of silent mode.");
-                        } else if (ringstate == 1) {
-                            // Log.i("Inside main vibrate mode 1:", "yes");
-                            mBuilder.setContentTitle("Your phone is out of vibrate mode.");
-                            mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
-                        } else {
-                            mBuilder.setContentTitle("Your phone is out of normal mode.");
-                            mBuilder.setTicker("Gtone- Phone out of normal mode.");
+                            adm.setRingerMode(ringstate);
+                            if (ringstate == 0) {
+                                mBuilder.setContentTitle("Your phone is out of silent mode.");
+                                mBuilder.setTicker("Gtone- Phone out of silent mode.");
+                            } else if (ringstate == 1) {
+                                // Log.i("Inside main vibrate mode 1:", "yes");
+                                mBuilder.setContentTitle("Your phone is out of vibrate mode.");
+                                mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
+                            } else {
+                                mBuilder.setContentTitle("Your phone is out of normal mode.");
+                                mBuilder.setTicker("Gtone- Phone out of normal mode.");
+                            }
+
+
+                            NotificationManager mNotifyMgr =
+                                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                            Notification note = mBuilder.build();
+
+                            note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
+
+
+                            // Builds the notification and issues it.
+                            mNotifyMgr.notify(0, note);
+
                         }
-
-
-                        NotificationManager mNotifyMgr =
-                                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-                        Notification note = mBuilder.build();
-
-                        note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
-
-
-                        // Builds the notification and issues it.
-                        mNotifyMgr.notify(0, note);
-
                     }
-
                 }
 
 

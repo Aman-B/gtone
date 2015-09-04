@@ -88,7 +88,7 @@ public class ShowLocationActivity implements LocationListener {
 
             //ask user to enable gps
             try {
-                int locationmode= Settings.Secure.getInt(MainActivity.mcon.getContentResolver(),Settings.Secure.LOCATION_MODE);
+                int locationmode= Settings.Secure.getInt(context.getContentResolver(),Settings.Secure.LOCATION_MODE);
 
                 switch(locationmode)
                 {
