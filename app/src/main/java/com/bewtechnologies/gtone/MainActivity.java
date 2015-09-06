@@ -3,6 +3,7 @@ package com.bewtechnologies.gtone;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -757,7 +758,7 @@ static double  mlat;
 
     public void addDrawerItems()
     {
-               String[] osArray = { "About us","Saved places" };
+               String[] osArray = { "About us","Saved places","Rate this app!" };
                mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
                mDrawerList.setAdapter(mAdapter);
 
@@ -808,12 +809,38 @@ static double  mlat;
                     alertDialog.show();
 
                 }
+                if(position == 2)
+                {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    //Try Google play
+                    intent.setData(Uri.parse("market://details?id=com.bewtechnologies.gtone"));
+                    if (MyStartActivity(intent) == false) {
+                        //Market (Google play) app seems not installed, let's try to open a webbrowser
+                        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.bewtechnologies.gtone"));
+                        if (MyStartActivity(intent) == false) {
+                            //Well if this also fails, we have run out of options, inform the user.
+                            Toast.makeText(mcon, "Could not open Android market, please install the market app.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
 
             }
         });
 
 
     }
+//for rating app
+    private boolean MyStartActivity(Intent intent) {
+
+        try
+        {
+            startActivity(intent);
+            return true;
+        }
+        catch (ActivityNotFoundException e)
+        {
+            return false;
+        }}
 
     public void setupDrawer(){
 
@@ -938,9 +965,8 @@ static double  mlat;
 
 
             // Format details of the place for display and show it in a TextView.
-            mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
-                    place.getId(), place.getAddress(), place.getPhoneNumber(),
-                    place.getWebsiteUri()));
+            mPlaceDetailsText.setText(""+place.getName()+" "+
+                     place.getAddress());
 
             // Display the third party attributions if set.
             final CharSequence thirdPartyAttribution = places.getAttributions();
