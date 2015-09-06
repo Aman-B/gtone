@@ -14,7 +14,7 @@
 
     <!-- places auto complete strings -->
 
-    <string name="autocomplete_hint">Enter place name or address</string>
+    <string name="autocomplete_hint">Enter a place name or landmark..</string>
     <string name="selected_place">Last Selected Place:</string>
     <string name="clear_text">Clear Text</string>
 

@@ -83,14 +83,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Set location:"
-                    android:paddingLeft="8sp"
+                    android:paddingLeft="7sp"
+
 
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:layout_weight="0.15" />
+                    android:layout_weight="0.15"
+                    android:textColor="#ff000000" />
 
                 <AutoCompleteTextView
                     android:id="@+id/autocomplete_places"
-                    android:layout_width="match_parent"
+                    android:layout_width="317dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="5sp"
                     android:hint="@string/autocomplete_hint"
@@ -121,15 +123,18 @@
                     android:theme="@android:style/Widget.Button" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="174dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="7sp"
                     android:text="@string/selected_place"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#ff000000" />
 
                 <TextView
                     android:id="@+id/place_details"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="7sp"
                     android:autoLink="all"
                     android:text=""
                     android:textAppearance="?android:attr/textAppearanceMedium" />
