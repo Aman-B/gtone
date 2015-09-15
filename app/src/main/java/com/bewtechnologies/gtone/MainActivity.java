@@ -174,23 +174,31 @@ static double  mlat;
         //launching service
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval =1000*60*5;
+        int interval =1000*60*2;
 
         //tracker
-       Log.i("here's to tracker service : ", "cheers!");
+
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         alarmIntent.putExtra("resume.lat",mlat);
         alarmIntent.putExtra("resume.long",mlong);
 
-        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
        /* //remove this after testing
         usersetting cm = new usersetting();
         cm.removetemp(getApplicationContext(),13.3441719,74.7954141);*/
 
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 0,
+                new Intent(this, AlarmReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
 
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
+        if(alarmUp==false) {
+            Log.i("here's to tracker service : ", "cheers!");
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        }
+        else{
+            Log.i("Service :"," already running. Alarmup :"+alarmUp);
+        }
 
 
 
@@ -932,8 +940,11 @@ static double  mlat;
                 + connectionResult.getErrorCode());
 
         // TODO(Developer): Check error code and notify the user of error state and resolution.
-        Toast.makeText(this,
+        /*Toast.makeText(this,
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
+                Toast.LENGTH_SHORT).show();*/
+        Toast.makeText(this,
+                "Couldn't connect to internet. Please check your connection.",
                 Toast.LENGTH_SHORT).show();
     }
 

@@ -54,7 +54,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         {
             elat = gps.getLatitude(); // returns latitude
             elong = gps.getLongitude();
-            /*elat=  15.3536397;
+           /* elat=  15.3536397;
             elong= 75.7936571;*/
             Log.i("Mycoordinates : ","here :"+elat + " " + elong);
 
@@ -144,6 +144,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     {
                         cm.givecoord(context);
                         notif = usersetting.notys;
+                        Log.i("Notified? ", " In else; " + notif);
                         if (notif == 1) {
                             Log.i("Inside out mode? :", "yes.");
                             //  usersetting.editor.putBoolean("notif",false);

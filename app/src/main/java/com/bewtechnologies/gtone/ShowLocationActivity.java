@@ -21,7 +21,6 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ShowLocationActivity implements LocationListener {
     private TextView latituteField;
@@ -54,14 +53,14 @@ public class ShowLocationActivity implements LocationListener {
         // Define the criteria how to select the location provider -> use
         // default
         Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
+
         provider = locationManager.getBestProvider(criteria, true);
         Location location = locationManager.getLastKnownLocation(provider);
 
 
-
-
+/*
         // Initialize the location fields
         if (location != null) {
             System.out.println("Provider " + provider + " has been selected.");
@@ -81,8 +80,8 @@ public class ShowLocationActivity implements LocationListener {
         else {
           //  latituteField.setText("Location not available");
             //longitudeField.setText("Location not available");
-          /*  usersetting cm = new usersetting();
-            match=cm.checkMatch(latitude,longitude,context);*/
+          *//*  usersetting cm = new usersetting();
+            match=cm.checkMatch(latitude,longitude,context);*//*
 
             Toast.makeText(context,"Location not avaialable,using prev ones",Toast.LENGTH_SHORT).show();
 
@@ -113,67 +112,11 @@ public class ShowLocationActivity implements LocationListener {
 
 
 
-        }
+        }*/
 
 
     }
 
-    private void createdialog(Context context) {
-
-      try {
-          AlertDialog.Builder adialog = new AlertDialog.Builder(MainActivity.mcon);
-          adialog.setTitle("Enable GPS settings");
-          adialog.setMessage("Location service of your phone needs to be enabled for this app and it's mode must be set to high accuracy. Do you want to enable it?");
-
-
-          adialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-
-                  Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                  MainActivity.mcon.startActivity(i);
-              }
-          });
-
-          adialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                  dialog.cancel();
-              }
-          });
-
-          adialog.show();
-      }
-      catch(Exception e)
-      {
-          e.printStackTrace();
-          Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-          MainActivity.mcon.startActivity(i);
-          PendingIntent pendInt = PendingIntent.getService(MainActivity.mcon,0,i,PendingIntent.FLAG_UPDATE_CURRENT);
-          // if alertdialog box fails, try notification.
-          NotificationCompat.Builder mBuilder =
-                  new NotificationCompat.Builder(MainActivity.mcon)
-                          .setSmallIcon(R.drawable.ic_launcher)
-                          .setContentText("GPS needs to be enabled and set to high accuracy for Gtone to work.")
-                          .setContentTitle("alarmreceive")
-                          .setContentIntent(pendInt)
-                          .setAutoCancel(true);
-          NotificationManager mNotifyMgr =
-                  (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-          Notification note = mBuilder.build();
-
-          note.flags |= note.DEFAULT_LIGHTS | note.FLAG_AUTO_CANCEL;
-
-
-          // Builds the notification and issues it.
-          mNotifyMgr.notify(0, note);
-
-      }
-
-
-    }
 
     //  private void checkIfmatch(Context context,double latitude, double longitude) {
 

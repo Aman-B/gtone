@@ -21,6 +21,10 @@ public class Bootreceiver extends BroadcastReceiver implements LocationListener{
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
+                new Intent(context, AlarmReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
+
         Log.i("Br:", "running");
        // context.startService(new Intent(context,AlarmReceiver.class));
 
@@ -43,35 +47,47 @@ public class Bootreceiver extends BroadcastReceiver implements LocationListener{
            boolean isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
+
             if (!isGPSEnabled) {
                 // no network provider is enabled
 
 
 
-            } else
+            }
+            else
             {
-                AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                int interval =1000*60*5;
-                Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+                if(alarmUp==false)
+                {
+                    AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    int interval = 1000 * 60 * 5;
+                    Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 
-                Log.i("Alarmreceiver started: ","GPS enabled");
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
-                manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
+                    Log.i("Alarmreceiver started: ", "GPS enabled");
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+                    manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+                }
+                else{
+                    Log.i("Else provider:","Service already running. Alarmup? "+alarmUp);
+                }
             }
 
         }
 
-        else{
-            AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            int interval =1000*60*5;
-            Log.i("Alarmreceiver started: ","Phone rebooted");
-            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+        else if(intent.getAction().matches("android.intent.action.BOOT_COMPLETED")){
+            if(alarmUp==false)
+            {
+                AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                int interval = 1000 * 60 * 5;
+                Log.i("Alarmreceiver started: ", "Phone rebooted");
+                Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
-            manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+                manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+            }
+            else{
+                Log.i("Else boot:","Service already running. Alarmup? "+alarmUp);
+            }
         }
     }
 
