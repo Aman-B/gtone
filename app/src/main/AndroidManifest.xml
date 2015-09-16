@@ -57,19 +57,19 @@
         </activity>
 
        <activity android:name=".usersetting"
-           android:label="gtone"
+           android:label="@string/us_name"
            android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
            </activity>
 
         <activity android:name=".SavedPlaces"
-            android:label="gtone"
+            android:label="@string/saved_places"
             android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
         </activity>
 
         <activity android:name=".SettingsActivity"
-            android:label="gtone"
+            android:label="@string/us_name"
             android:parentActivityName="com.bewtechnologies.gtone.MainActivity">
 
         </activity>

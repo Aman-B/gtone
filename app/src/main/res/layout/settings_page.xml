@@ -24,6 +24,7 @@
             android:drawableRight="@android:drawable/btn_radio"
             android:drawableEnd="@android:drawable/btn_radio"
             android:text="Silent mode"
+            android:layout_marginLeft="10sp"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <RadioButton
@@ -34,6 +35,7 @@
             android:drawableRight="@android:drawable/btn_radio"
             android:drawableEnd="@android:drawable/btn_radio"
             android:text="Vibrate mode"
+            android:layout_marginLeft="10sp"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
 

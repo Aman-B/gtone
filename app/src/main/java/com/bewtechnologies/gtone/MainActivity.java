@@ -182,7 +182,6 @@ static double  mlat;
         alarmIntent.putExtra("resume.lat",mlat);
         alarmIntent.putExtra("resume.long",mlong);
 
-        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
        /* //remove this after testing
         usersetting cm = new usersetting();
@@ -192,13 +191,17 @@ static double  mlat;
                 new Intent(this, AlarmReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
 
+        Log.i("Service :"," already running. Alarmup :"+alarmUp);
+
         if(alarmUp==false) {
             Log.i("here's to tracker service : ", "cheers!");
+            pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
             manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
         }
-        else{
-            Log.i("Service :"," already running. Alarmup :"+alarmUp);
-        }
+
+
+
 
 
 

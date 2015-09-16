@@ -161,14 +161,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                             adm.setRingerMode(ringstate);
                             if (ringstate == 0) {
                                 mBuilder.setContentTitle("Your phone is out of silent mode.");
-                                mBuilder.setTicker("Gtone- Phone out of silent mode.");
+                                mBuilder.setTicker("Silent places- Phone out of silent mode.");
                             } else if (ringstate == 1) {
                                 // Log.i("Inside main vibrate mode 1:", "yes");
                                 mBuilder.setContentTitle("Your phone is out of vibrate mode.");
-                                mBuilder.setTicker("Gtone- Phone out of  vibrate mode.");
-                            } else {
-                                mBuilder.setContentTitle("Your phone is out of normal mode.");
-                                mBuilder.setTicker("Gtone- Phone out of normal mode.");
+                                mBuilder.setTicker("Silent places- Phone out of  vibrate mode.");
                             }
 
 

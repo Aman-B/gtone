@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Tuneplaces</string>
+    <string name="app_name">Silent places</string>
+    <string name="us_name">Set ringer mode</string>
+    <string name="saved_places">Saved places</string>
+
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
