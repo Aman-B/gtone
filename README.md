@@ -1,5 +1,7 @@
 # Silent places
 (Project name - gtone)
+
+
 This app puts your phone on silent or vibrate mode automatically based on your location.
 Just enter the name of the place. Select the mode you want your phone to be in. And that's it.
 Whenever you'll reach the selected place, your phone's ringer mode will change automatically.
